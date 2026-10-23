@@ -4,9 +4,11 @@
 
 **An open-source team of AI agents that watches, audits and plans your Google Ads, with a special focus on Google Ad Grants for nonprofits. It is read-only until you decide otherwise.**
 
+**What you get:** a local web dashboard for setup and management, plus a full command-line interface (`ads-agents`).
+
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue?logo=python&logoColor=white)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Default mode: READ_ONLY](https://img.shields.io/badge/default%20mode-READ__ONLY-brightgreen)](#-safety-first-how-it-protects-your-account)
+[![Default mode: READ_ONLY](https://img.shields.io/badge/default%20mode-READ__ONLY-brightgreen)](#️-safety-first-how-it-protects-your-account)
 [![Agents: 41](https://img.shields.io/badge/agents-41%20(31%20platform%20%2B%2010%20Ads%20ops)-purple)](docs/AGENTS.md)
 [![Google Ads API](https://img.shields.io/badge/Google%20Ads%20API-google--ads%20%E2%89%A528-4285F4?logo=googleads&logoColor=white)](https://developers.google.com/google-ads/api/docs/start)
 [![Status: alpha](https://img.shields.io/badge/status-alpha%20(v0.1.0)-orange)](#-project-status)
@@ -28,6 +30,8 @@ Running Google Ads well takes daily work. Someone has to check spend, look for w
 **Google Ads AI Automation** splits that work across a team of specialised software "agents". Each one has a single job: one checks your conversion tracking, another drafts keywords, another paces your budget, another blocks risky ad copy, and so on. They read your account through the official Google Ads API and write their findings as plain reports on your computer.
 
 **By default nothing in your Google Ads account is changed.** The tool only reads and advises. Writing changes is a deliberate switch you have to turn on yourself.
+
+**What you get:** a local web dashboard (`ads-agents ui`) for setup, Google tags, read-only runs and reports, plus the `ads-agents` command line for everything else. See [Dashboards & interfaces](#️-dashboards--interfaces).
 
 ### Who is it for?
 
@@ -140,7 +144,7 @@ Every platform agent has a **mutation policy** that limits what it may do:
 - **Conversion governance:** finds "micro" events (scrolls, clicks) that inflate your conversion numbers and plans a clean-up.
 - **Change ledger:** imports Google's change history so every material edit can be explained.
 - **Reports, not black boxes:** everything is written as JSON or Markdown under `reports/` so you can read, diff and archive it.
-- **Local dashboard:** `ads-agents ui` opens a setup and reports UI on `127.0.0.1`. It writes the same local files as the wizard and shows what the agents load. See [Configure in the dashboard](#-configure-in-the-dashboard).
+- **Local dashboard:** `ads-agents ui` opens a setup and reports UI on `127.0.0.1`. It writes the same local files as the wizard and shows what the agents load. See [Dashboards & interfaces](#️-dashboards--interfaces).
 - **Your organization or business:** describe your business or nonprofit and/or give your website. The planner, creative agent and competitor discovery use it.
 - **Google Tags tab:** paste a GTM or Google tag snippet (or just the IDs) and the agent plans and publishes the GTM tags for you. Publishing happens only in a live mode, after you confirm, and it is logged with rollback.
 - **Setup wizard:** `python scripts/init_project.py` is the terminal alternative to the dashboard. It also creates your local config and never commits it.
@@ -167,15 +171,37 @@ All screenshots show real CLI output from a fresh install, using **example confi
 
 ---
 
-## 🖥️ Configure in the dashboard
+## 🖥️ Dashboards & interfaces
 
-```bash
-ads-agents ui            # or: PYTHONPATH=src python -m ads_ai_agents.cli ui
-# → http://127.0.0.1:8765 (loopback only)
-```
+The project ships with two working interfaces. Both run on your own computer.
+
+**1. Local web dashboard:** `ads-agents ui` (or `PYTHONPATH=src python -m ads_ai_agents.cli ui`) opens <http://127.0.0.1:8765>. It is local-only: it listens on 127.0.0.1, every request needs a per-run token, and nothing is hosted online.
+
+| Tab | What it does |
+| --- | --- |
+| **Overview** | Current automation mode, a read-only connection **ping**, and the settings the agents actually load |
+| **Setup** | Your organization or business · Account & credentials · Website & domains · Locales & tenant · Safety & automation mode · Account IDs |
+| **Google Tags (GTM / Google tag)** | Paste → Connect → Plan → Apply → Verify. Apply is a dry run in `READ_ONLY` and keeps a change log and rollback |
+| **Run (read-only)** | Run the 10-agent mission **plan** on a sample campaign, or the read-only account **audit** |
+| **Reports** | The **efficiency dashboard** (`efficiency_dashboard.json`) and summary from the latest audit |
+| **Agents** | The live list of all **41 agents** (31 platform + 10 Google Ads ops) |
+
+**2. Command line:** `ads-agents …` for audits, daily runs, briefs, recommendations, budget plans and schedules (see [Useful commands](#-useful-commands)).
 
 | | |
 | --- | --- |
+| **Your organization or business** (fake demo data)<br>![Organization](docs/images/06-dashboard-organization.png) | **Read-only plan uses your main offering and competitor seeds**<br>![Plan](docs/images/08-dashboard-plan.png) |
+| **Google Tags: paste → connect → plan → apply → verify** (dry run in READ_ONLY)<br>![Google Tags](docs/images/07-dashboard-google-tags.png) | **Overview: mode, limits, read-only ping, loaded settings**<br>![Overview](docs/images/09-dashboard-overview.png) |
+
+### Configure in the dashboard
+
+- **Your organization or business.** Choose Business or Nonprofit (NGO). Describe your organization, product, service or cause, give your website, or both. Optionally add your main offering. Nonprofits can switch on Ad Grants mode from here.
+- **Google Tags.** Paste your snippet or IDs. Then give the shown service-account e-mail **Publish** access in GTM. The agent plans the tags (Consent Mode, GA4, Conversion Linker, key events, Ads conversions) and publishes them as a new GTM version, but only in a live mode and after you confirm. Honest note: if your site does not load the GTM container yet, install the snippet once (or use your CMS's GTM plugin); after that, tag changes are automated.
+- **Secrets are write-only.** Switching to a live mode needs the typed phrase `ENABLE LIVE WRITES`.
+
+Every field is saved to `.env`, `config/product_facts.json`, `config/tenant.json`, `config/account_ids.json` or `secrets/`, all gitignored. These are the same files the setup wizard and the agents use. The full field-to-variable map is in [`docs/DASHBOARD.md`](docs/DASHBOARD.md).
+
+--- | --- |
 | **Your organization or business** (fake demo data)<br>![Organization](docs/images/06-dashboard-organization.png) | **Read-only plan uses your main offering and competitor seeds**<br>![Plan](docs/images/08-dashboard-plan.png) |
 | **Google Tags: paste → connect → plan → apply → verify** (dry run in READ_ONLY)<br>![Google Tags](docs/images/07-dashboard-google-tags.png) | **Overview: mode, limits, read-only ping, loaded settings**<br>![Overview](docs/images/09-dashboard-overview.png) |
 
