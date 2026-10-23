@@ -1,0 +1,42 @@
+{
+  "_comment": "Google Ads resource IDs used by optional ops modules. All values below are FAKE placeholders. Copy to config/account_ids.json (gitignored) and fill in IDs from YOUR account. Never commit real IDs.",
+  "customer_id": "0000000000",
+  "portfolio_strategies": {
+    "_comment": "Shared Maximize Conversions portfolio bid strategies, one per locale group.",
+    "primary": "1000000001",
+    "secondary": "1000000002",
+    "orphan_target_spend": "1000000003"
+  },
+  "budgets": {
+    "primary": {"id": "2000000001", "amount": 179.0},
+    "secondary": {"id": "2000000002", "amount": 150.0}
+  },
+  "target_cpa_micros": 2000000000,
+  "expected_unique_daily_budget": 329.0,
+  "recovery": {
+    "_comment": "Campaign IDs reviewed by the recovery amendment example (intelligence/recovery_amendment.py).",
+    "core_campaigns": {
+      "3000000001": "primary",
+      "3000000002": "secondary",
+      "3000000003": "primary",
+      "3000000004": "secondary"
+    },
+    "city_campaigns": ["3000000011", "3000000012", "3000000013"],
+    "city_campaign_with_account_goal": "3000000012",
+    "custom_goal_id": "4000000001",
+    "single_word_keyword": {"ad_group_id": "5000000001", "criterion_id": "6000000001", "text": "wellbeing"}
+  },
+  "conversion_actions": {
+    "_comment": "Secondary-only conversion actions (e.g. YouTube) that the budget wave tries to demote.",
+    "youtube": ["7000000001", "7000000002"]
+  },
+  "assets": {
+    "_comment": "Library assets reused by PMax / asset publisher. Leave empty to skip.",
+    "logo": "",
+    "landscape_logo": "",
+    "business_name": "",
+    "marketing_image": "",
+    "square_marketing_image": "",
+    "portrait_marketing_image": ""
+  }
+}

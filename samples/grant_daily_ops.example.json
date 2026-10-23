@@ -1,0 +1,89 @@
+{
+  "name": "YOUR_BRAND | Grant Search | Daily Ops Snapshot",
+  "portfolio": "grant_search",
+  "market": "EU",
+  "locale": "en",
+  "daily_budget_eur": 329,
+  "bidding_strategy": "maximize_conversions_with_tcpa_guard",
+  "grant": {
+    "monthly_budget_usd": 10000,
+    "target_cpa_usd": 2.0,
+    "max_daily_budget_usd": 329,
+    "currency": "USD"
+  },
+  "business_goal": {
+    "name": "Qualified wellbeing lead @ ~$2 CPA",
+    "primary_conversion": "qualified_onboarding_complete",
+    "secondary_conversions": [
+      "engaged_session",
+      "registration_complete",
+      "first_meaningful_conversation",
+      "subscription_start"
+    ],
+    "target_cpa_usd": 2.0,
+    "notes": "Daily correction sample with elevated CPA to exercise reallocation logic."
+  },
+  "performance": {
+    "spend_usd_today": 280,
+    "spend_usd_mtd": 4200,
+    "leads_today": 90,
+    "leads_mtd": 1400,
+    "cpa_usd": 3.0,
+    "ctr": 0.045,
+    "conversion_rate": 0.08,
+    "impression_share_lost_budget": 0.18,
+    "disapproved_assets": 1,
+    "conversion_outage": false
+  },
+  "competitors": {
+    "brands": ["Wysa", "Headspace", "Calm", "BetterHelp", "Talkspace"],
+    "domains": ["wysa.com", "headspace.com", "calm.com", "betterhelp.com", "talkspace.com"]
+  },
+  "search_themes": [
+    "daily wellbeing support",
+    "stress self-help",
+    "burnout prevention"
+  ],
+  "intent_clusters": [
+    {
+      "name": "stress_overload",
+      "jobs_to_be_done": ["I need private daily support for stress"],
+      "safe_language": ["daily wellbeing support", "stress self-help", "anonymous emotional support"],
+      "prohibited_language": ["therapy replacement", "medical diagnosis"],
+      "locales": ["en"],
+      "seed_keywords": ["self help for stress", "daily stress support app"],
+      "negative_themes": ["crisis/emergency care"]
+    }
+  ],
+  "asset_specs": [
+    {
+      "cluster": "stress_overload",
+      "locale": "en",
+      "headlines": [
+        "Private Daily Wellbeing Support",
+        "Anonymous Emotional Support",
+        "Self-Help For Stressful Days"
+      ],
+      "descriptions": [
+        "Build calm daily routines with private wellbeing support from YOUR_BRAND."
+      ],
+      "landing_page_url": "https://www.example.com/"
+    }
+  ],
+  "negative_keywords": [
+    "suicide",
+    "hotline",
+    "emergency",
+    "psychiatrist",
+    "diagnosis",
+    "medication",
+    "jobs",
+    "salary"
+  ],
+  "brand_exclusions": ["BetterHelp", "Talkspace", "Headspace", "Calm"],
+  "metadata": {
+    "audiences": [],
+    "daily_budget_usd": 329,
+    "requires_manual_approval": true
+  }
+}

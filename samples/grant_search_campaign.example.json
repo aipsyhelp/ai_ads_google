@@ -1,0 +1,177 @@
+{
+  "name": "YOUR_BRAND | Grant Search | Core Wellbeing EN",
+  "portfolio": "grant_search",
+  "market": "EU",
+  "locale": "en",
+  "daily_budget_eur": 329,
+  "bidding_strategy": "maximize_conversions_with_tcpa_guard",
+  "grant": {
+    "monthly_budget_usd": 10000,
+    "target_cpa_usd": 2.0,
+    "max_daily_budget_usd": 329,
+    "currency": "USD"
+  },
+  "business_goal": {
+    "name": "Qualified wellbeing lead @ ~$2 CPA",
+    "primary_conversion": "qualified_onboarding_complete",
+    "secondary_conversions": [
+      "engaged_session",
+      "registration_complete",
+      "first_meaningful_conversation",
+      "subscription_start",
+      "enterprise_meeting_booked"
+    ],
+    "target_cpa_usd": 2.0,
+    "notes": "North star: fully utilize $10k/mo Google Ad Grant at ~$2 qualified-lead CPA. Primary event must predict durable engagement."
+  },
+  "competitors": {
+    "brands": [
+      "Wysa",
+      "Woebot",
+      "Headspace",
+      "Calm",
+      "Replika",
+      "Youper",
+      "Talkspace",
+      "BetterHelp",
+      "BuddyHelp"
+    ],
+    "domains": [
+      "wysa.com",
+      "woebothealth.com",
+      "headspace.com",
+      "calm.com",
+      "replika.com",
+      "youper.ai",
+      "talkspace.com",
+      "betterhelp.com",
+      "example.com"
+    ],
+    "notes": "Compete on JTBD (stress/burnout/sleep/anonymous support), not clinical therapy claims."
+  },
+  "search_themes": [
+    "daily wellbeing support",
+    "stress self-help routines",
+    "burnout prevention",
+    "anonymous emotional support",
+    "employee wellbeing platform",
+    "sleep recovery habits"
+  ],
+  "intent_clusters": [
+    {
+      "name": "stress_overload",
+      "jobs_to_be_done": [
+        "I feel overwhelmed and need daily support",
+        "I want a private self-help routine for stress"
+      ],
+      "safe_language": [
+        "daily wellbeing support",
+        "stress self-help",
+        "anonymous emotional support",
+        "reflection and grounding routines"
+      ],
+      "prohibited_language": [
+        "medical diagnosis",
+        "therapy replacement",
+        "treatment claims"
+      ],
+      "locales": ["en", "ua", "de"],
+      "seed_keywords": [
+        "daily stress support app",
+        "self help for stress",
+        "anonymous emotional support",
+        "wellbeing chat support",
+        "calm daily routine app"
+      ],
+      "negative_themes": [
+        "crisis/emergency care",
+        "clinical diagnosis intent",
+        "jobs and careers"
+      ]
+    },
+    {
+      "name": "corporate_wellbeing",
+      "jobs_to_be_done": [
+        "HR wants anonymous wellbeing support for employees",
+        "Leadership wants aggregate workplace wellbeing insights"
+      ],
+      "safe_language": [
+        "employee wellbeing",
+        "burnout prevention routines",
+        "anonymous support",
+        "aggregated employer dashboard"
+      ],
+      "prohibited_language": [
+        "clinical care",
+        "diagnose employees",
+        "replace mental health professionals"
+      ],
+      "locales": ["en", "ua", "de"],
+      "seed_keywords": [
+        "employee wellbeing platform",
+        "workplace burnout support",
+        "anonymous employee support app",
+        "corporate wellbeing program"
+      ],
+      "negative_themes": [
+        "EAP clinical therapy only",
+        "recruiting and HRIS software"
+      ]
+    }
+  ],
+  "asset_specs": [
+    {
+      "cluster": "stress_overload",
+      "locale": "en",
+      "headlines": [
+        "Private Daily Wellbeing Support",
+        "Build A Calmer Daily Routine",
+        "Anonymous Emotional Support",
+        "Self-Help For Stressful Days",
+        "YOUR_BRAND Wellbeing App",
+        "Reflect Ground And Reset",
+        "Support Without Judgement",
+        "Small Habits Big Calm"
+      ],
+      "descriptions": [
+        "YOUR_BRAND offers self-help routines, reflection, and private daily support for stressful days.",
+        "Create small wellbeing habits with anonymous text and voice support available when you need it."
+      ],
+      "image_briefs": [
+        "Calm mobile app moment, warm neutral palette, no clinical imagery, no distressed person close-up."
+      ],
+      "landing_page_url": "https://www.example.com/"
+    }
+  ],
+  "negative_keywords": [
+    "suicide",
+    "suicidal",
+    "hotline",
+    "emergency",
+    "psychiatrist",
+    "diagnosis",
+    "medication",
+    "prescription",
+    "crisis intervention",
+    "psychiatric diagnosis",
+    "jobs",
+    "salary",
+    "hiring"
+  ],
+  "brand_exclusions": [
+    "BetterHelp",
+    "Talkspace",
+    "Headspace",
+    "Calm",
+    "Wysa",
+    "Woebot",
+    "Replika"
+  ],
+  "metadata": {
+    "audiences": [],
+    "daily_budget_usd": 329,
+    "requires_manual_approval": true,
+    "operating_cadence": "daily",
+    "source_document": "docs/ARCHITECTURE.md"
+  }
+}

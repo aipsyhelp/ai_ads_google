@@ -1,0 +1,332 @@
+<!doctype html>
+<!--
+  Google Ads AI Automation — "How the agents work" animation (source).
+  Render: open in a browser (auto-plays, loops), or call window.renderAt(seconds) for frame-exact capture.
+  Canvas 1600x900, duration 15 s.
+  Icons: Lucide (https://lucide.dev), ISC License, Copyright (c) Lucide Icons and Contributors.
+  No Google logos are used; this project is not affiliated with or endorsed by Google.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Google Ads AI Automation — how the agents work</title>
+<style>
+:root{
+  --bg:#060912; --panel:#0c1220; --panel2:#0f1729; --line:#1c2740; --text:#e8edf7; --muted:#8a96b0; --dim:#56627c;
+  --blue:#4c8dff; --green:#2ec27e; --yellow:#f5b83d; --red:#ff6b5e;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1600px;height:900px;overflow:hidden;background:var(--bg)}
+body{font-family:"Inter","Inter Tight",system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--text);-webkit-font-smoothing:antialiased}
+#stage{position:relative;width:1600px;height:900px;overflow:hidden}
+.glow{position:absolute;border-radius:50%;filter:blur(90px);opacity:.55}
+#g1{width:720px;height:720px;left:-260px;top:-300px;background:radial-gradient(circle,#1d4ed866,transparent 70%)}
+#g2{width:760px;height:760px;right:-280px;bottom:-360px;background:radial-gradient(circle,#10b98144,transparent 70%)}
+#g3{width:420px;height:420px;left:820px;top:260px;background:radial-gradient(circle,#f5b83d1f,transparent 70%)}
+#dots{position:absolute;inset:0;background-image:radial-gradient(#ffffff0f 1px,transparent 1px);background-size:28px 28px;mask-image:radial-gradient(ellipse at 60% 50%,#000 30%,transparent 80%)}
+.ic{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+/* header */
+#brand{position:absolute;left:80px;top:54px;display:flex;align-items:center;gap:14px}
+#logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#4c8dff,#2ec27e);display:grid;place-items:center;color:#06101f;box-shadow:0 0 30px #4c8dff55}
+#logo .ic{width:22px;height:22px;stroke-width:2.2}
+#brand h1{font:600 21px/1 "Inter Tight","Inter",sans-serif;letter-spacing:-.01em}
+#brand small{display:block;font:500 13px/1 "Inter",sans-serif;color:var(--muted);margin-top:6px;letter-spacing:.02em}
+#chips{position:absolute;right:80px;top:60px;display:flex;gap:10px}
+.chip{font:500 13px/1 "Inter",sans-serif;color:var(--muted);border:1px solid var(--line);background:#0b1120cc;padding:9px 13px;border-radius:999px;display:flex;align-items:center;gap:8px}
+.chip b{color:var(--text);font-weight:600}
+.chip .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green)}
+/* stepper */
+#steps{position:absolute;left:80px;top:170px;width:390px}
+.step{position:relative;display:flex;align-items:center;gap:16px;height:96px}
+.step .badge{width:48px;height:48px;border-radius:14px;border:1px solid var(--line);background:var(--panel);display:grid;place-items:center;color:var(--dim);position:relative;z-index:2;transition:none}
+.step .txt{display:flex;flex-direction:column;gap:6px}
+.step .k{font:600 11px/1 "JetBrains Mono",monospace;letter-spacing:.14em;color:var(--dim);text-transform:uppercase}
+.step .t{font:600 19px/1.15 "Inter Tight","Inter",sans-serif;color:var(--muted);letter-spacing:-.01em}
+#rail{position:absolute;left:23.5px;top:72px;width:1px;height:480px;background:var(--line);z-index:1}
+#railFill{position:absolute;left:23px;top:72px;width:2px;height:0;background:linear-gradient(var(--blue),var(--green));z-index:1;box-shadow:0 0 12px #4c8dff99}
+/* stage panel */
+#panel{position:absolute;left:540px;top:150px;width:980px;height:600px;border-radius:24px;background:linear-gradient(180deg,#0d1424ee,#0a101ce6);border:1px solid #1a2540;box-shadow:0 40px 120px #00000080, inset 0 1px 0 #ffffff0a;overflow:hidden}
+.scene{position:absolute;inset:0;opacity:0}
+.sh{position:absolute;left:48px;top:40px;right:48px;display:flex;justify-content:space-between;align-items:center}
+.sh .ttl{font:600 28px/1.1 "Inter Tight","Inter",sans-serif;letter-spacing:-.02em}
+.sh .sub{font:500 15px/1.4 "Inter",sans-serif;color:var(--muted);margin-top:8px}
+.tag{font:600 12px/1 "JetBrains Mono",monospace;letter-spacing:.08em;padding:8px 11px;border-radius:8px;border:1px solid;display:inline-flex;align-items:center;gap:7px}
+.tag.g{color:var(--green);border-color:#2ec27e55;background:#2ec27e14}
+.tag.y{color:var(--yellow);border-color:#f5b83d55;background:#f5b83d12}
+.tag.b{color:var(--blue);border-color:#4c8dff55;background:#4c8dff14}
+.tag .ic{width:15px;height:15px;stroke-width:2}
+/* S1 terminal */
+#term{position:absolute;left:48px;top:140px;width:884px;height:250px;border-radius:16px;background:#070b14;border:1px solid #1a2540;overflow:hidden}
+#term .bar{height:40px;border-bottom:1px solid #141d33;display:flex;align-items:center;gap:8px;padding:0 16px}
+#term .bar i{width:11px;height:11px;border-radius:50%;background:#26324d;display:block}
+#term .bar span{margin-left:10px;font:500 12px/1 "JetBrains Mono",monospace;color:var(--dim)}
+#term pre{padding:20px 22px;font:500 17px/1.75 "JetBrains Mono",monospace;color:#cfd8ea;white-space:pre}
+#term .p{color:var(--green)} #term .c{color:var(--dim)}
+.caret{display:inline-block;width:9px;height:19px;background:var(--blue);vertical-align:-3px;margin-left:2px}
+#wiz{position:absolute;left:48px;top:418px;width:884px;display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.wi{height:120px;border-radius:14px;border:1px solid var(--line);background:var(--panel2);padding:18px;display:flex;flex-direction:column;justify-content:space-between}
+.wi .ic{color:var(--muted)}
+.wi .l{font:600 15px/1.3 "Inter",sans-serif}
+.wi .s{font:500 12px/1.3 "Inter",sans-serif;color:var(--muted);margin-top:4px}
+.wi.on{border-color:#2ec27e66;box-shadow:0 0 0 1px #2ec27e22, 0 10px 30px #2ec27e14}
+.wi.on .ic{color:var(--green)}
+/* S2 connect */
+.node{position:absolute;width:250px;height:200px;border-radius:20px;border:1px solid var(--line);background:var(--panel2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center}
+.node .big{width:68px;height:68px;border-radius:20px;display:grid;place-items:center}
+.node .big .ic{width:34px;height:34px;stroke-width:1.6}
+.node .l{font:600 18px/1.2 "Inter Tight","Inter",sans-serif}
+.node .s{font:500 13px/1.35 "Inter",sans-serif;color:var(--muted);padding:0 18px}
+#wire{position:absolute;left:330px;top:332px;width:320px;height:2px;background:var(--line);overflow:visible}
+#wireFill{position:absolute;left:0;top:0;height:2px;width:0;background:linear-gradient(90deg,var(--blue),var(--green));box-shadow:0 0 14px #4c8dffaa}
+#pulse{position:absolute;top:-5px;width:12px;height:12px;border-radius:50%;background:#fff;box-shadow:0 0 18px 4px #4c8dffcc;opacity:0}
+#ro{position:absolute;left:250px;top:470px;width:480px;height:64px;white-space:nowrap;border-radius:16px;border:1px solid #2ec27e55;background:#2ec27e10;display:flex;align-items:center;justify-content:center;gap:12px;font:600 15px/1 "JetBrains Mono",monospace;color:var(--green)}
+/* S3 agents */
+#ring{position:absolute;left:0;top:0;width:980px;height:600px}
+#hub{position:absolute;left:400px;top:260px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle at 50% 35%,#16244a,#0b1222 70%);border:1px solid #2a3b66;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 0 80px #4c8dff33, inset 0 0 40px #4c8dff22}
+#hub .n{font:700 64px/1 "Inter Tight","Inter",sans-serif;letter-spacing:-.04em;background:linear-gradient(180deg,#fff,#a9c4ff);-webkit-background-clip:text;color:transparent}
+#hub .u{font:600 13px/1 "JetBrains Mono",monospace;letter-spacing:.16em;color:var(--muted);margin-top:6px}
+#split{position:absolute;left:310px;top:452px;width:360px;font-size:14px !important;text-align:center;font:500 15px/1.4 "Inter",sans-serif;color:var(--muted)}
+#split b{color:var(--text)} #split .bl{color:var(--blue)} #split .gr{color:var(--green)}
+.st{position:absolute;width:150px;height:92px;margin:-46px 0 0 -75px;border-radius:16px;border:1px solid var(--line);background:#0e1628f2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px}
+.st .ic{color:var(--dim);width:26px;height:26px}
+.st .l{font:600 15px/1 "Inter Tight","Inter",sans-serif;color:var(--muted)}
+.st .n{position:absolute;top:8px;left:10px;font:600 10px/1 "JetBrains Mono",monospace;color:var(--dim)}
+.ag{position:absolute;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%}
+svg#links{position:absolute;left:0;top:0}
+/* S4 reports */
+.rc{position:absolute;top:150px;width:276px;height:340px;border-radius:18px;border:1px solid var(--line);background:var(--panel2);padding:24px;overflow:hidden}
+.rc .hd{display:flex;align-items:center;gap:12px}
+.rc .hd .ic{color:var(--blue)}
+.rc .hd .l{font:600 17px/1.2 "Inter Tight","Inter",sans-serif}
+.rc .path{font:500 11.5px/1 "JetBrains Mono",monospace;color:var(--dim);margin-top:10px}
+.rc .rows{margin-top:22px;display:flex;flex-direction:column;gap:13px}
+.rc .row{height:10px;border-radius:5px;background:#1a2440}
+.rc .row i{display:block;height:100%;border-radius:5px}
+.rc .kv{display:flex;justify-content:space-between;font:500 13px/1 "Inter",sans-serif;color:var(--muted);margin-top:16px}
+.rc .kv b{color:var(--text);font-weight:600}
+.bars{display:flex;align-items:flex-end;gap:10px;height:120px;margin-top:20px}
+.bars i{flex:1;border-radius:6px 6px 2px 2px;background:linear-gradient(180deg,#4c8dff,#4c8dff33)}
+/* S5 approve */
+#plan{position:absolute;left:160px;top:140px;width:660px;border-radius:20px;border:1px solid var(--line);background:var(--panel2);padding:28px 30px}
+#plan .hd{display:flex;align-items:center;gap:12px;font:600 19px/1 "Inter Tight","Inter",sans-serif}
+#plan .hd .ic{color:var(--yellow)}
+.pl{display:flex;align-items:center;justify-content:space-between;padding:15px 0;border-bottom:1px solid #18223a;font:500 15px/1.2 "Inter",sans-serif;color:#cdd6e8}
+.pl:last-of-type{border-bottom:0}
+.pl em{font-style:normal;font:600 13px/1 "JetBrains Mono",monospace;color:var(--muted)}
+#btns{display:flex;gap:12px;margin-top:22px;justify-content:flex-end}
+.btn{height:48px;padding:0 22px;border-radius:12px;display:flex;align-items:center;gap:10px;font:600 15px/1 "Inter",sans-serif}
+.btn.ghost{border:1px solid var(--line);color:var(--muted)}
+#approve{background:linear-gradient(135deg,#2ec27e,#22a06b);color:#04140c;box-shadow:0 10px 30px #2ec27e40}
+#cursor{position:absolute;width:26px;height:26px;z-index:5}
+/* S6 changes */
+#chg{position:absolute;left:48px;top:140px;width:540px;border-radius:18px;border:1px solid var(--line);background:var(--panel2);padding:22px 24px}
+.cr{display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid #18223a}
+.cr:last-child{border-bottom:0}
+.cr .ic{color:var(--green);width:20px;height:20px}
+.cr .l{flex:1;font:500 15px/1.25 "Inter",sans-serif;color:#d5ddee}
+.cr .v{font:600 13px/1 "JetBrains Mono",monospace;color:var(--green)}
+.cap{height:6px;border-radius:3px;background:#1a2440;margin-top:6px;position:relative;overflow:hidden}
+.cap i{position:absolute;left:0;top:0;bottom:0;background:var(--green);border-radius:3px}
+.cap u{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--yellow)}
+#log{position:absolute;left:616px;top:140px;width:316px;height:250px;border-radius:18px;border:1px solid var(--line);background:#070b14;padding:18px 18px;font:500 12.5px/1.9 "JetBrains Mono",monospace;color:var(--muted);overflow:hidden}
+#logl{white-space:pre}
+#log .h{display:flex;align-items:center;gap:8px;color:var(--text);font:600 13px/1 "Inter",sans-serif;margin-bottom:10px}
+#log .h .ic{width:17px;height:17px;color:var(--blue)}
+#kill{position:absolute;left:616px;top:410px;width:316px;height:130px;border-radius:18px;border:1px solid var(--line);background:var(--panel2);padding:20px}
+#kill .h{display:flex;align-items:center;gap:10px;font:600 15px/1 "Inter",sans-serif}
+#kill .h .ic{color:var(--red);width:20px;height:20px}
+#kill code{display:block;margin-top:14px;font:500 12px/1.4 "JetBrains Mono",monospace;color:var(--muted)}
+#tog{position:absolute;right:20px;top:16px;width:52px;height:28px;border-radius:14px;background:#1a2440;border:1px solid #26324d}
+#tog i{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#8a96b0}
+#tagline{position:absolute;left:48px;bottom:40px;font:600 22px/1.2 "Inter Tight","Inter",sans-serif;letter-spacing:-.01em}
+#tagline span{color:var(--green)}
+/* footer */
+#cap{position:absolute;left:540px;top:782px;width:980px;display:flex;justify-content:space-between;align-items:center;font:500 15px/1.4 "Inter",sans-serif;color:var(--muted)}
+#cap b{color:var(--text);font-weight:600}
+#prog{position:absolute;left:80px;right:80px;bottom:42px;height:2px;background:#141c30;border-radius:1px}
+#progFill{height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--green),var(--yellow));border-radius:1px}
+#fade{position:absolute;inset:0;background:var(--bg);opacity:0;pointer-events:none}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="glow" id="g1"></div><div class="glow" id="g2"></div><div class="glow" id="g3"></div><div id="dots"></div>
+
+  <div id="brand"><div id="logo"><svg class="ic" viewBox="0 0 24 24"><path d="M12 8V4H8" /> <rect width="16" height="12" x="4" y="8" rx="2" /> <path d="M2 14h2" /> <path d="M20 14h2" /> <path d="M15 13v2" /> <path d="M9 13v2" /></svg></div><div><h1>Google Ads AI Automation</h1><small>How the agent team works for you</small></div></div>
+  <div id="chips"><div class="chip"><span class="dot"></span><b>READ_ONLY</b> by default</div><div class="chip">Open source · MIT</div></div>
+
+  <div id="steps">
+    <div id="rail"></div><div id="railFill"></div>
+  </div>
+
+  <div id="panel">
+    <!-- S1 -->
+    <div class="scene" id="s1">
+      <div class="sh"><div><div class="ttl">Clone it and run the setup wizard</div><div class="sub">About five minutes. Everything you enter stays on your machine.</div></div><span class="tag b"><svg class="ic" viewBox="0 0 24 24"><path d="M12 19h8" /> <path d="m4 17 6-6-6-6" /></svg> STEP 1</span></div>
+      <div id="term"><div class="bar"><i></i><i></i><i></i><span>~/projects</span></div><pre id="tt"></pre></div>
+      <div id="wiz">
+        <div class="wi"><span><svg class="ic" viewBox="0 0 24 24"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z" /> <circle cx="16.5" cy="7.5" r=".5" fill="currentColor" /></svg></span><div><div class="l">Developer token</div><div class="s">From API Center</div></div></div>
+        <div class="wi"><span><svg class="ic" viewBox="0 0 24 24"><path d="m12 14 4-4" /> <path d="M3.34 19a10 10 0 1 1 17.32 0" /></svg></span><div><div class="l">Account IDs</div><div class="s">Manager + client</div></div></div>
+        <div class="wi"><span><svg class="ic" viewBox="0 0 24 24"><path d="M19.414 14.414C21 12.828 22 11.5 22 9.5a5.5 5.5 0 0 0-9.591-3.676.6.6 0 0 1-.818.001A5.5 5.5 0 0 0 2 9.5c0 2.3 1.5 4 3 5.5l5.535 5.362a2 2 0 0 0 2.879.052 2.12 2.12 0 0 0-.004-3 2.124 2.124 0 1 0 3-3 2.124 2.124 0 0 0 3.004 0 2 2 0 0 0 0-2.828l-1.881-1.882a2.41 2.41 0 0 0-3.409 0l-1.71 1.71a2 2 0 0 1-2.828 0 2 2 0 0 1 0-2.828l2.823-2.762" /></svg></span><div><div class="l">Brand &amp; domains</div><div class="s">Approved websites</div></div></div>
+        <div class="wi"><span><svg class="ic" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /> <path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg></span><div><div class="l">Saved locally</div><div class="s">.env · gitignored</div></div></div>
+      </div>
+    </div>
+    <!-- S2 -->
+    <div class="scene" id="s2">
+      <div class="sh"><div><div class="ttl">Connect your own Google Ads account</div><div class="sub">Your keys, your account. The agents start in read-only mode.</div></div><span class="tag g"><svg class="ic" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /> <path d="m9 12 2 2 4-4" /></svg> READ-ONLY</span></div>
+      <div class="node" id="n1" style="left:80px;top:232px"><div class="big" style="background:#4c8dff1a;color:var(--blue)"><svg class="ic" viewBox="0 0 24 24"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z" /> <circle cx="16.5" cy="7.5" r=".5" fill="currentColor" /></svg></div><div class="l">Your credentials</div><div class="s">Service account + developer token</div></div>
+      <div id="wire"><div id="wireFill"></div><div id="pulse"></div></div>
+      <div class="node" id="n2" style="left:650px;top:232px"><div class="big" style="background:#2ec27e1a;color:var(--green)"><svg class="ic" viewBox="0 0 24 24"><path d="m12 14 4-4" /> <path d="M3.34 19a10 10 0 1 1 17.32 0" /></svg></div><div class="l">Your Ads account</div><div class="s">Read through the official Google Ads API</div></div>
+      <div id="ro"><svg class="ic" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /> <path d="m9 12 2 2 4-4" /></svg> ads-agents ping → OK · writes blocked</div>
+    </div>
+    <!-- S3 -->
+    <div class="scene" id="s3">
+      <div class="sh"><div><div class="ttl">The agent team works in six stages</div><div class="sub">Every day: sense, compete, structure, create, allocate, guard.</div></div><span class="tag b"><svg class="ic" viewBox="0 0 24 24"><path d="M12 8V4H8" /> <rect width="16" height="12" x="4" y="8" rx="2" /> <path d="M2 14h2" /> <path d="M20 14h2" /> <path d="M15 13v2" /> <path d="M9 13v2" /></svg> 41 AGENTS</span></div>
+      <svg id="links" width="980" height="600"></svg>
+      <div id="ring"></div>
+      <div id="hub"><div class="n">41</div><div class="u">AGENTS</div></div>
+      <div id="split"><b class="bl">31</b> platform agents <span style="color:var(--dim)">+</span> <b class="gr">10</b> Google Ads ops agents</div>
+    </div>
+    <!-- S4 -->
+    <div class="scene" id="s4">
+      <div class="sh"><div><div class="ttl">You get reports and a plan, not surprises</div><div class="sub">Plain JSON and Markdown in reports/YYYY-MM-DD/.</div></div><span class="tag y">DEMO DATA</span></div>
+      <div class="rc" id="r1" style="left:48px"><div class="hd"><svg class="ic" viewBox="0 0 24 24"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" /> <path d="M14 2v5a1 1 0 0 0 1 1h5" /> <path d="M10 9H8" /> <path d="M16 13H8" /> <path d="M16 17H8" /></svg><div class="l">Account audit</div></div><div class="path">audit · read-only</div>
+        <div class="rows"><div class="row"><i style="width:82%;background:#4c8dff"></i></div><div class="row"><i style="width:64%;background:#4c8dffaa"></i></div><div class="row"><i style="width:47%;background:#4c8dff77"></i></div><div class="row"><i style="width:71%;background:#4c8dff99"></i></div></div>
+        <div class="kv"><span>Campaigns checked</span><b>12</b></div><div class="kv"><span>Policy risks</span><b>2</b></div><div class="kv"><span>Tracking issues</span><b>1</b></div></div>
+      <div class="rc" id="r2" style="left:352px"><div class="hd"><svg class="ic" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1" ry="1" /> <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /> <path d="m9 14 2 2 4-4" /></svg><div class="l">Daily plan</div></div><div class="path">plan · 6-stage mission</div>
+        <div class="rows"><div class="kv" style="margin-top:0"><span>Add negatives</span><b>4</b></div><div class="kv"><span>Pause weak ad group</span><b>1</b></div><div class="kv"><span>Budget tilt</span><b>+8%</b></div><div class="kv"><span>Needs your approval</span><b style="color:var(--yellow)">yes</b></div></div></div>
+      <div class="rc" id="r3" style="left:656px"><div class="hd"><svg class="ic" viewBox="0 0 24 24"><path d="m12 14 4-4" /> <path d="M3.34 19a10 10 0 1 1 17.32 0" /></svg><div class="l">Efficiency dashboard</div></div><div class="path">dashboard · KPI board</div>
+        <div class="bars"><i style="height:40%"></i><i style="height:62%"></i><i style="height:55%"></i><i style="height:78%;background:linear-gradient(180deg,#2ec27e,#2ec27e33)"></i><i style="height:88%;background:linear-gradient(180deg,#2ec27e,#2ec27e33)"></i></div>
+        <div class="kv"><span>Grant pacing</span><b>on track</b></div><div class="kv"><span>CTR rule (≥5%)</span><b style="color:var(--green)">pass</b></div></div>
+    </div>
+    <!-- S5 -->
+    <div class="scene" id="s5">
+      <div class="sh"><div><div class="ttl">You review and approve</div><div class="sub">Nothing changes until you switch the mode on and say yes.</div></div><span class="tag y"><svg class="ic" viewBox="0 0 24 24"><path d="m16 11 2 2 4-4" /> <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /> <circle cx="9" cy="7" r="4" /></svg> HUMAN IN THE LOOP</span></div>
+      <div id="plan"><div class="hd"><svg class="ic" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1" ry="1" /> <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /> <path d="m9 14 2 2 4-4" /></svg> Proposed changes <span class="tag y" style="margin-left:auto">DEMO</span></div>
+        <div style="margin-top:12px">
+        <div class="pl">Add 4 negative keywords <em>low risk</em></div>
+        <div class="pl">Shift budget toward the best campaign <em>+8% · cap 10%</em></div>
+        <div class="pl">Pause one weak ad group <em>reversible</em></div>
+        </div>
+        <div id="btns"><div class="btn ghost">Reject</div><div class="btn" id="approve"><span id="apIc"><svg class="ic" viewBox="0 0 24 24"><path d="m16 11 2 2 4-4" /> <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /> <circle cx="9" cy="7" r="4" /></svg></span><span id="apTx">Approve plan</span></div></div>
+      </div>
+      <svg id="cursor" viewBox="0 0 24 24"><path d="M4 3l7.5 17 2.2-7.3L21 10.5z" fill="#fff" stroke="#060912" stroke-width="1.2" stroke-linejoin="round"/></svg>
+    </div>
+    <!-- S6 -->
+    <div class="scene" id="s6">
+      <div class="sh"><div><div class="ttl">Small, capped changes in Google Ads</div><div class="sub">Every change is logged. One setting freezes everything.</div></div><span class="tag g"><svg class="ic" viewBox="0 0 24 24"><path d="M10 5H3" /> <path d="M12 19H3" /> <path d="M14 3v4" /> <path d="M16 17v4" /> <path d="M21 12h-9" /> <path d="M21 19h-5" /> <path d="M21 5h-7" /> <path d="M8 10v4" /> <path d="M8 12H3" /></svg> CONTROLLED</span></div>
+      <div id="chg">
+        <div class="cr" id="c1"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /> <path d="m16 9-5.5 5.5L8 12" /></svg><div class="l">Negative keywords added<div class="cap"><i style="width:100%"></i></div></div><span class="v">4 / 4</span></div>
+        <div class="cr" id="c2"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /> <path d="m16 9-5.5 5.5L8 12" /></svg><div class="l">Budget shifted (within cap)<div class="cap"><i id="capFill" style="width:0"></i><u style="left:100%"></u></div></div><span class="v" id="capV">+0%</span></div>
+        <div class="cr" id="c3"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /> <path d="m16 9-5.5 5.5L8 12" /></svg><div class="l">Weak ad group paused<div class="cap"><i style="width:100%"></i></div></div><span class="v">1</span></div>
+        <div class="cr" id="c4"><svg class="ic" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /></svg><div class="l">Policy &amp; Grant domain gate<div class="cap"><i style="width:100%;background:var(--blue)"></i></div></div><span class="v" style="color:var(--blue)">passed</span></div>
+      </div>
+      <div id="log"><div class="h"><svg class="ic" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /> <path d="M3 3v5h5" /> <path d="M12 7v5l4 2" /></svg> Change ledger</div><div id="logl"></div></div>
+      <div id="kill"><div class="h"><svg class="ic" viewBox="0 0 24 24"><path d="M12 2v10" /> <path d="M18.4 6.6a9 9 0 1 1-12.77.04" /></svg> Kill switch</div><div id="tog"><i></i></div><code id="killc">ADS_AUTOMATION_MODE=CONTROLLED_LIVE</code></div>
+      <div id="tagline">Read-only by default. <span>You stay in control.</span></div>
+    </div>
+  </div>
+
+  <div id="cap"><span id="capt"></span><span style="font:500 12px/1 'JetBrains Mono',monospace;color:var(--dim)">Illustrative demo · not real account data</span></div>
+  <div id="prog"><div id="progFill"></div></div>
+  <div id="fade"></div>
+</div>
+<script>
+const ICONS = {"terminal": "<path d=\"M12 19h8\" /> <path d=\"m4 17 6-6-6-6\" />", "wand-sparkles": "<path d=\"m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72\" /> <path d=\"m14 7 3 3\" /> <path d=\"M5 6v4\" /> <path d=\"M19 14v4\" /> <path d=\"M10 2v2\" /> <path d=\"M7 8H3\" /> <path d=\"M21 16h-4\" /> <path d=\"M11 3H9\" />", "key-round": "<path d=\"M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z\" /> <circle cx=\"16.5\" cy=\"7.5\" r=\".5\" fill=\"currentColor\" />", "plug": "<path d=\"M12 22v-5\" /> <path d=\"M15 8V2\" /> <path d=\"M17 8a1 1 0 0 1 1 1v4a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1z\" /> <path d=\"M9 8V2\" />", "shield-check": "<path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\" /> <path d=\"m9 12 2 2 4-4\" />", "radar": "<path d=\"M19.07 4.93A10 10 0 0 0 6.99 3.34\" /> <path d=\"M4 6h.01\" /> <path d=\"M2.29 9.62A10 10 0 1 0 21.31 8.35\" /> <path d=\"M16.24 7.76A6 6 0 1 0 8.23 16.67\" /> <path d=\"M12 18h.01\" /> <path d=\"M17.99 11.66A6 6 0 0 1 15.77 16.67\" /> <circle cx=\"12\" cy=\"12\" r=\"2\" /> <path d=\"m13.41 10.59 5.66-5.66\" />", "swords": "<path d=\"m13 19 6-6\" /> <path d=\"M14.5 17.5 3.586 6.586A2 2 0 013 5.172V3h2.172a2 2 0 011.414.586L17.5 14.5\" /> <path d=\"m14.828 6.172 2.586-2.586A2 2 0 0118.828 3H21v2.172a2 2 0 01-.586 1.414l-2.586 2.586\" /> <path d=\"m16 16 4 4\" /> <path d=\"m19 21 2-2\" /> <path d=\"m5 14 4 4\" /> <path d=\"m5 21-2-2\" /> <path d=\"M7.5 16.5 4 20\" />", "network": "<rect x=\"16\" y=\"16\" width=\"6\" height=\"6\" rx=\"1\" /> <rect x=\"2\" y=\"16\" width=\"6\" height=\"6\" rx=\"1\" /> <rect x=\"9\" y=\"2\" width=\"6\" height=\"6\" rx=\"1\" /> <path d=\"M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3\" /> <path d=\"M12 12V8\" />", "pen-tool": "<path d=\"m18 13-.654-4.736a4 4 0 00-2.756-3.266l-9.163-2.9a2 2 0 00-2.017.493l-.82.819a2 2 0 00-.492 2.017l2.9 9.163a4 4 0 003.266 2.756L13 18\" /> <path d=\"M18.648 12.352a1.205 1.205 0 011.704 0l1.296 1.296a1.205 1.205 0 010 1.704l-6.296 6.296a1.205 1.205 0 01-1.704 0l-1.296-1.296a1.205 1.205 0 010-1.704z\" /> <path d=\"m3 3 6.586 6.586\" /> <circle cx=\"11\" cy=\"11\" r=\"2\" />", "scale": "<path d=\"M12 3v18\" /> <path d=\"m19 8 3 8a5 5 0 0 1-6 0zV7\" /> <path d=\"M3 7h1a17 17 0 0 0 8-2 17 17 0 0 0 8 2h1\" /> <path d=\"m5 8 3 8a5 5 0 0 1-6 0zV7\" /> <path d=\"M7 21h10\" />", "shield": "<path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\" />", "file-text": "<path d=\"M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z\" /> <path d=\"M14 2v5a1 1 0 0 0 1 1h5\" /> <path d=\"M10 9H8\" /> <path d=\"M16 13H8\" /> <path d=\"M16 17H8\" />", "clipboard-check": "<rect width=\"8\" height=\"4\" x=\"8\" y=\"2\" rx=\"1\" ry=\"1\" /> <path d=\"M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2\" /> <path d=\"m9 14 2 2 4-4\" />", "user-check": "<path d=\"m16 11 2 2 4-4\" /> <path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\" /> <circle cx=\"9\" cy=\"7\" r=\"4\" />", "sliders-horizontal": "<path d=\"M10 5H3\" /> <path d=\"M12 19H3\" /> <path d=\"M14 3v4\" /> <path d=\"M16 17v4\" /> <path d=\"M21 12h-9\" /> <path d=\"M21 19h-5\" /> <path d=\"M21 5h-7\" /> <path d=\"M8 10v4\" /> <path d=\"M8 12H3\" />", "history": "<path d=\"M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8\" /> <path d=\"M3 3v5h5\" /> <path d=\"M12 7v5l4 2\" />", "power": "<path d=\"M12 2v10\" /> <path d=\"M18.4 6.6a9 9 0 1 1-12.77.04\" />", "bot": "<path d=\"M12 8V4H8\" /> <rect width=\"16\" height=\"12\" x=\"4\" y=\"8\" rx=\"2\" /> <path d=\"M2 14h2\" /> <path d=\"M20 14h2\" /> <path d=\"M15 13v2\" /> <path d=\"M9 13v2\" />", "circle-check": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"m16 9-5.5 5.5L8 12\" />", "gauge": "<path d=\"m12 14 4-4\" /> <path d=\"M3.34 19a10 10 0 1 1 17.32 0\" />", "heart-handshake": "<path d=\"M19.414 14.414C21 12.828 22 11.5 22 9.5a5.5 5.5 0 0 0-9.591-3.676.6.6 0 0 1-.818.001A5.5 5.5 0 0 0 2 9.5c0 2.3 1.5 4 3 5.5l5.535 5.362a2 2 0 0 0 2.879.052 2.12 2.12 0 0 0-.004-3 2.124 2.124 0 1 0 3-3 2.124 2.124 0 0 0 3.004 0 2 2 0 0 0 0-2.828l-1.881-1.882a2.41 2.41 0 0 0-3.409 0l-1.71 1.71a2 2 0 0 1-2.828 0 2 2 0 0 1 0-2.828l2.823-2.762\" />", "lock": "<rect width=\"18\" height=\"11\" x=\"3\" y=\"11\" rx=\"2\" ry=\"2\" /> <path d=\"M7 11V7a5 5 0 0 1 10 0v4\" />"};
+const svgIcon = n => `<svg class="ic" viewBox="0 0 24 24">${ICONS[n]}</svg>`;
+const D = 15.0;
+const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
+const ease=x=>{x=clamp(x);return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2};
+const eout=x=>{x=clamp(x);return 1-Math.pow(1-x,3)};
+const prog=(t,a,b)=>clamp((t-a)/(b-a));
+const $=id=>document.getElementById(id);
+
+// Steps
+const STEPS=[["terminal","Clone & set up"],["key-round","Connect read-only"],["bot","41 agents work"],["file-text","Reports & a plan"],["user-check","You approve"],["sliders-horizontal","Capped changes"]];
+const SCENES=[[0,3.0],[3.0,4.9],[4.9,9.1],[9.1,11.0],[11.0,12.7],[12.7,15.0]];
+const stepsEl=$("steps");
+STEPS.forEach((s,i)=>{const d=document.createElement("div");d.className="step";d.id="st"+i;
+  d.innerHTML=`<div class="badge">${svgIcon(s[0])}</div><div class="txt"><span class="k">Step ${i+1}</span><span class="t">${s[1]}</span></div>`;stepsEl.appendChild(d)});
+
+// S3 stage ring
+const STAGES=[["radar","Sense"],["swords","Compete"],["network","Structure"],["pen-tool","Create"],["scale","Allocate"],["shield","Guard"]];
+const cx=490,cy=350,R=225,Ry=178;
+const ring=$("ring");const links=$("links");
+const pos=STAGES.map((s,i)=>{const a=-Math.PI/2+i*2*Math.PI/6;return [cx+R*Math.cos(a)*1.25,cy+Ry*Math.sin(a)*1.05]});
+STAGES.forEach((s,i)=>{const d=document.createElement("div");d.className="st";d.id="sg"+i;d.style.left=pos[i][0]+"px";d.style.top=pos[i][1]+"px";
+  d.innerHTML=`<span class="n">0${i+1}</span>${svgIcon(s[0])}<span class="l">${s[1]}</span>`;ring.appendChild(d);
+  const l=document.createElementNS("http://www.w3.org/2000/svg","line");l.setAttribute("x1",cx);l.setAttribute("y1",cy);l.setAttribute("x2",pos[i][0]);l.setAttribute("y2",pos[i][1]);
+  l.setAttribute("stroke","#1c2740");l.setAttribute("stroke-width","1.5");l.id="ln"+i;links.appendChild(l)});
+const ringPath=document.createElementNS("http://www.w3.org/2000/svg","ellipse");
+ringPath.setAttribute("cx",cx);ringPath.setAttribute("cy",cy);ringPath.setAttribute("rx",R*1.25);ringPath.setAttribute("ry",Ry*1.05);ringPath.setAttribute("fill","none");ringPath.setAttribute("stroke","#16203a");ringPath.setAttribute("stroke-dasharray","3 7");links.insertBefore(ringPath,links.firstChild);
+const agents=[];for(let i=0;i<41;i++){const d=document.createElement("div");d.className="ag";const plat=i<31;d.style.background=plat?"#4c8dff":"#2ec27e";d.style.boxShadow=`0 0 10px ${plat?"#4c8dff":"#2ec27e"}`;$("s3").appendChild(d);agents.push(d)}
+
+// Fill icon placeholders already substituted server-side.
+const TERM=[["$ ","git clone https://github.com/aipsyhelp/ai_ads_google.git"],["$ ","cd ai_ads_google && pip install -e \".[dev]\""],["$ ","python scripts/init_project.py"]];
+const LOG=["09:00  audit         read-only","09:02  plan          6 stages","09:15  approved      by you","09:16  negatives     +4","09:16  budget        +8% (cap 10%)","09:17  ad group      paused","09:17  ledger        synced"];
+const CAPTIONS=["<b>Install</b> from GitHub and answer a few wizard questions.","<b>Connect</b> your own account. No writes are possible yet.","<b>31 + 10 agents</b> audit, research and plan every day.","<b>Read</b> the audit, the daily plan and the KPI dashboard.","<b>Approve</b> what you like. Large moves always need a human.","<b>Apply</b> small, logged, reversible changes, with a kill switch."];
+
+window.renderAt=function(t){
+  t=((t%D)+D)%D;
+  // background drift
+  $("g1").style.transform=`translate(${Math.sin(t*.4)*30}px,${Math.cos(t*.3)*20}px)`;
+  $("g2").style.transform=`translate(${Math.cos(t*.35)*30}px,${Math.sin(t*.3)*24}px)`;
+  $("progFill").style.width=(t/D*100)+"%";
+  // active scene
+  let cur=SCENES.findIndex(([a,b])=>t>=a&&t<b);if(cur<0)cur=5;
+  SCENES.forEach(([a,b],i)=>{const el=$("s"+(i+1));const fi=i===0?1:eout(prog(t,a,a+.45));const fo=i===5?1:1-ease(prog(t,b-.3,b+.05));
+    const o=Math.min(fi,fo);el.style.opacity=o;el.style.transform=`translateY(${(1-fi)*16}px) scale(${.985+.015*fi})`;el.style.visibility=o<.01?"hidden":"visible"});
+  // stepper
+  STEPS.forEach((s,i)=>{const el=$("st"+i);const b=el.querySelector(".badge"),tt=el.querySelector(".t"),k=el.querySelector(".k");
+    const a=SCENES[i][0];const on=eout(prog(t,a,a+.4));const done=t>=SCENES[i][1];
+    if(i===cur){b.style.borderColor=`rgba(76,141,255,${.3+.5*on})`;b.style.background=`rgba(76,141,255,${.08+.1*on})`;b.style.color="#9cc0ff";b.style.boxShadow=`0 0 ${24*on}px rgba(76,141,255,.45)`;tt.style.color="#e8edf7";k.style.color="#4c8dff";el.style.transform=`translateX(${6*on}px)`}
+    else if(done){b.style.borderColor="rgba(46,194,126,.45)";b.style.background="rgba(46,194,126,.10)";b.style.color="#2ec27e";b.style.boxShadow="none";tt.style.color="#b9c3d8";k.style.color="#2ec27e";el.style.transform="none"}
+    else{b.style.borderColor="#1c2740";b.style.background="#0c1220";b.style.color="#56627c";b.style.boxShadow="none";tt.style.color="#8a96b0";k.style.color="#56627c";el.style.transform="none"}});
+  const railP=clamp((cur+prog(t,SCENES[cur][0],SCENES[cur][1]))/5);$("railFill").style.height=(480*railP)+"px";
+  $("capt").innerHTML=CAPTIONS[cur];$("capt").style.opacity=eout(prog(t,SCENES[cur][0],SCENES[cur][0]+.35));
+  // S1 typing
+  {const T0=.2,cps=70;let out="";let remaining=(t-T0)*cps;let typingLine=-1;
+    TERM.forEach(([p,c],i)=>{if(remaining<=0)return;const n=Math.min(c.length,Math.floor(remaining));out+=`<span class="p">${p}</span>${c.slice(0,n).replace(/&/g,"&amp;").replace(/</g,"&lt;")}`;if(n<c.length){typingLine=i}else out+="\n";remaining-=c.length+3});
+    if(remaining>0) out+=`<span class="c">✓ Wrote .env, config/product_facts.json, config/tenant.json (local only)</span>`;
+    const blink=(Math.floor(t*2.2)%2===0)?'<span class="caret"></span>':'<span class="caret" style="opacity:0"></span>';
+    $("tt").innerHTML=out+(remaining>0&&typingLine<0?"":blink);
+    document.querySelectorAll("#wiz .wi").forEach((w,i)=>{const p=eout(prog(t,2.05+i*.16,2.35+i*.16));w.style.opacity=.35+.65*p;w.style.transform=`translateY(${(1-p)*10}px)`;w.classList.toggle("on",p>.6)});}
+  // S2 connect
+  {const p=ease(prog(t,3.35,4.15));$("wireFill").style.width=(320*p)+"px";const pu=$("pulse");pu.style.left=(320*p-6)+"px";pu.style.opacity=p>0&&p<1?1:0;
+    $("n2").style.borderColor=p>=1?"#2ec27e66":"#1c2740";$("n2").style.boxShadow=p>=1?"0 0 40px #2ec27e22":"none";
+    const r=eout(prog(t,4.15,4.5));$("ro").style.opacity=r;$("ro").style.transform=`translateY(${(1-r)*12}px)`;}
+  // S3 agents
+  {const T0=5.3,step=.6;STAGES.forEach((s,i)=>{const el=$("sg"+i),ln=$("ln"+i);const a=T0+i*step;const on=eout(prog(t,a,a+.35));const after=t>a+step;
+      const ic=el.querySelector(".ic"),lb=el.querySelector(".l");const col=i===5?"#2ec27e":(i%2?"#2ec27e":"#4c8dff");
+      el.style.borderColor=on>0?`rgba(${i%2||i===5?"46,194,126":"76,141,255"},${.25+.45*on})`:"#1c2740";
+      el.style.boxShadow=(on>0&&!after)?`0 0 ${30*on}px ${col}55`:"none";el.style.transform=`scale(${1+.06*on*(after?0:1)})`;
+      ic.style.color=on>0?col:"#56627c";lb.style.color=on>0?"#e8edf7":"#8a96b0";
+      ln.setAttribute("stroke",on>0?col:"#1c2740");ln.setAttribute("stroke-opacity",on>0?(after?.35:.9):1)});
+    const appear=eout(prog(t,5.0,5.8));
+    agents.forEach((d,i)=>{const plat=i<31;const k=plat?i/31:(i-31)/10;const rr=plat?128:150;const sp=plat?.35:-.5;const ang=k*2*Math.PI+t*sp;
+      const x=cx+Math.cos(ang)*rr*(.6+.4*appear),y=cy+Math.sin(ang)*rr*.82*(.6+.4*appear);d.style.left=x+"px";d.style.top=y+"px";d.style.opacity=appear*(.55+.45*Math.sin(t*3+i))});
+    const h=eout(prog(t,4.95,5.45));$("hub").style.transform=`scale(${.85+.15*h})`;$("hub").style.opacity=h;$("split").style.opacity=eout(prog(t,5.4,5.9));}
+  // S4 reports
+  ["r1","r2","r3"].forEach((id,i)=>{const p=eout(prog(t,9.3+i*.18,9.85+i*.18));const el=$(id);el.style.opacity=p;el.style.transform=`translateY(${(1-p)*40}px) rotate(${(1-p)*(i-1)*3}deg)`;
+    el.querySelectorAll(".bars i").forEach((b,j)=>{b.style.transform=`scaleY(${eout(prog(t,9.7+j*.08,10.2+j*.08))})`;b.style.transformOrigin="bottom"})});
+  // S5 approve
+  {const cu=$("cursor");const p=ease(prog(t,11.3,12.0));const x0=780,y0=520,x1=700,y1=430;cu.style.left=(x0+(x1-x0)*p)+"px";cu.style.top=(y0+(y1-y0)*p)+"px";
+    const click=prog(t,12.05,12.25);const ap=$("approve");const done=t>=12.15;ap.style.transform=`scale(${1-.05*Math.sin(Math.PI*click)})`;
+    $("apTx").textContent=done?"Approved":"Approve plan";$("apIc").innerHTML=svgIcon(done?"circle-check":"user-check");cu.style.opacity=t<12.5?1:0;
+    $("plan").style.borderColor=done?"#2ec27e66":"#1c2740";}
+  // S6 changes
+  {["c1","c2","c3","c4"].forEach((id,i)=>{const p=eout(prog(t,12.9+i*.22,13.3+i*.22));const el=$(id);el.style.opacity=p;el.style.transform=`translateX(${(1-p)*-16}px)`});
+    const c=eout(prog(t,13.2,13.9));$("capFill").style.width=(80*c)+"%";$("capV").textContent=`+${Math.round(8*c)}%`;
+    const n=Math.floor(clamp((t-12.85)/.25,0,LOG.length));$("logl").innerHTML=LOG.slice(0,n).map((l,i)=>`<div style="color:${i===n-1?"#e8edf7":"#8a96b0"}">${l}</div>`).join("");
+    const k=ease(prog(t,14.15,14.45));const ti=$("tog").querySelector("i");ti.style.transform=`translateX(${24*(1-k)}px)`;
+    ti.style.background=k<.5?"#2ec27e":"#ff6b5e";$("tog").style.background=k<.5?"#2ec27e33":"#ff6b5e22";
+    $("killc").textContent=k<.5?"ADS_AUTOMATION_MODE=CONTROLLED_LIVE":"ADS_AUTOMATION_MODE=READ_ONLY  # frozen";
+    $("tagline").style.opacity=eout(prog(t,14.2,14.6));}
+  // loop fade
+  $("fade").style.opacity=ease(prog(t,14.72,15.0));
+};
+// Auto-play when opened directly (not when captured frame-by-frame).
+if(!window.__CAPTURE__){const s=performance.now();(function loop(){renderAt((performance.now()-s)/1000);requestAnimationFrame(loop)})()}else{renderAt(0)}
+</script>
+</body>
+</html>

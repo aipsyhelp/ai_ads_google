@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "google-ads-ai-automation"
+version = "0.1.0"
+description = "Enterprise AI-agent control plane for Google Ads / Ad Grants automation."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Google Ads AI Automation contributors" }]
+keywords = ["google-ads", "ad-grants", "nonprofit", "ai-agents", "automation", "ppc"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Developers",
+]
+requires-python = ">=3.11"
+dependencies = [
+    "google-ads>=28.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/aipsyhelp/ai_ads_google"
+Repository = "https://github.com/aipsyhelp/ai_ads_google"
+Issues = "https://github.com/aipsyhelp/ai_ads_google/issues"
+Documentation = "https://github.com/aipsyhelp/ai_ads_google/tree/main/docs"
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+ads-agents = "ads_ai_agents.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

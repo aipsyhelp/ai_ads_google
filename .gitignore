@@ -1,0 +1,52 @@
+# Secrets & local tenant config (never commit)
+.env
+.env.*
+!.env.example
+secrets/**
+!secrets/.gitkeep
+config/product_facts.json
+config/tenant.json
+**/google_ads_service_account*.json
+**/*service-account*.json
+**/credentials*.json
+**/client_secret*.json
+**/*.pem
+**/*.p12
+**/*.key
+config/account_ids.json
+google-ads.yaml
+**/google-ads.yaml
+token.json
+**/*token*.json
+*.pickle
+
+# Runtime / generated
+var/**
+!var/.gitkeep
+reports/**
+!reports/.gitkeep
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+.ipynb_checkpoints/
+*.sqlite
+*.sqlite3
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+dist/
+build/
+*.egg-info/
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/
+*.swp

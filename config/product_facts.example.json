@@ -1,0 +1,121 @@
+{
+  "product": "YOUR_BRAND",
+  "merchant": "YOUR_LEGAL_ENTITY",
+  "captured_at": "YYYY-MM-DD",
+  "landings": {
+    "EN": "https://www.example.com/en",
+    "UA": "https://www.example.com/uk",
+    "DE": "https://www.example.com/de"
+  },
+  "ads_destinations": {
+    "note": "Ads and sitelinks MUST use publicly crawlable URLs only. Never use login-gated deep links.",
+    "site_root": "https://www.example.com/",
+    "chat_entry": "https://app.example.com/",
+    "news": {
+      "EN": "https://www.example.com/en/news",
+      "UA": "https://www.example.com/uk/news",
+      "DE": "https://www.example.com/de/news"
+    },
+    "corporate": {
+      "EN": "https://www.example.com/en/corporate",
+      "UA": "https://www.example.com/uk/corporate",
+      "DE": "https://www.example.com/de/corporate"
+    },
+    "ngo": {
+      "EN": "https://www.example.com/en/ngo",
+      "UA": "https://www.example.com/uk/ngo",
+      "DE": "https://www.example.com/de/ngo"
+    }
+  },
+  "grant_destinations": {
+    "note": "Google Ad Grants: advertise only approved owned domains. Never App Store / Play / YouTube / social as finals.",
+    "enforce_for_grant_account": true,
+    "approved_domains": [
+      "example.com",
+      "www.example.com"
+    ],
+    "preferred_grant_domain": "www.example.com",
+    "home": "https://www.example.com/en",
+    "help_request": "https://www.example.com/en",
+    "contact": "https://www.example.com/en/contact",
+    "privacy": "https://www.example.com/en/privacy",
+    "about_ngo": "https://www.example.com/en/about",
+    "donate": "",
+    "never_advertise": [
+      "apps.apple.com",
+      "play.google.com",
+      "youtube.com",
+      "youtu.be"
+    ],
+    "blocked_for_grant": [],
+    "unserved_hosts": []
+  },
+  "web_app": {
+    "login": "https://app.example.com/",
+    "home": "https://app.example.com/chat",
+    "locales": [
+      "en",
+      "ua",
+      "de"
+    ],
+    "note": "In-app deep links that require login must NOT be used as Google Ads final URLs."
+  },
+  "stores": {
+    "android": {
+      "url": "",
+      "package": ""
+    },
+    "ios": {
+      "url": "",
+      "app_id": ""
+    },
+    "surfaces": [
+      "www.example.com",
+      "app.example.com"
+    ]
+  },
+  "pricing": {
+    "note": "Optional demo values. Fill with your real checkout price if you track paid conversions.",
+    "stripe_live": {
+      "eur_monthly": 9.99,
+      "period_days": 30
+    }
+  },
+  "stage_goal": {
+    "name": "product_activation",
+    "kpi": "cost_per_product_activation",
+    "definition": "Ad click → landing → first meaningful activation",
+    "payments": "observe_only_until_volume"
+  },
+  "tracking": {
+    "gtm": "GTM-XXXXXXX",
+    "ga4": "G-XXXXXXXXXX",
+    "events": {
+      "login_success": {
+        "ads_role": "activation_candidate"
+      },
+      "chat_message_sent": {
+        "ads_role": "stage_primary"
+      },
+      "purchase": {
+        "ads_role": "observe_until_volume"
+      }
+    }
+  },
+  "grant_policy": {
+    "monthly_budget_usd": 10000,
+    "max_daily_budget_usd": 329,
+    "min_account_ctr": 0.05,
+    "bidding": "MAXIMIZE_CONVERSIONS",
+    "keywords": "phrase_or_exact_multiword_only",
+    "min_quality_score": 3
+  },
+  "geo": {
+    "_comment": "Optional city-level campaigns. Campaign names containing these labels are treated as city campaigns (RSA scrub, budget pacing).",
+    "focus_cities": [
+      "City_A",
+      "City_B",
+      "City_C"
+    ]
+  }
+}

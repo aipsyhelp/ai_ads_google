@@ -1,0 +1,4 @@
+date,source,locale,ad_clicks,ad_spend_usd,landing_sessions,registrations,first_chat,returned_users,subscriptions_started,paying_users,revenue_usd,notes
+2026-04-21,google_ads,EN,120,85.50,110,18,6,2,1,0,0,example row — replace with real data
+2026-04-22,google_ads,UA,95,70.00,90,22,9,3,0,0,0,
+2026-04-23,organic,UA,0,0,40,8,4,2,1,1,9.99,first paying example if any

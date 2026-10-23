@@ -1,0 +1,19 @@
+{
+  "tenant_id": "acme-nonprofit",
+  "display_name": "Acme Nonprofit",
+  "timezone": "Europe/Berlin",
+  "currency": "USD",
+  "google_ads": {
+    "login_customer_id": "YOUR_LOGIN_CUSTOMER_ID",
+    "customer_id": "YOUR_CUSTOMER_ID",
+    "is_ad_grants": true
+  },
+  "locales": ["EN", "UA", "DE"],
+  "primary_locale": "EN",
+  "product_facts_path": "config/product_facts.json",
+  "alerts": {
+    "email": "",
+    "slack_webhook_url": ""
+  },
+  "notes": "Copy to tenant.json after init. Never commit tenant.json."
+}
