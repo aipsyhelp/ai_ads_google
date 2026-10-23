@@ -24,7 +24,24 @@ source .venv/bin/activate
 pip install -e ".[dev]"
 ```
 
-## 3. Configure (wizard)
+## 3. Configure in the dashboard (recommended)
+
+```bash
+ads-agents ui            # or: PYTHONPATH=src python -m ads_ai_agents.cli ui
+```
+
+This opens <http://127.0.0.1:8765>. It listens on your computer only.
+
+1. **Overview → Create missing local config files**: copies the templates (`.env`, `config/*.json`).
+2. **Your organization or business**: choose *Business* or *Nonprofit (NGO)*. Describe your organization, product, service or cause, or give your website, or both. The main offering is optional. Nonprofits can turn on Ad Grants mode here.
+3. **Account & credentials**: developer token, service-account key (path or upload into `secrets/`), MCC and client customer IDs.
+4. **Website & domains**, **Locales & tenant**, **Safety & automation mode**, **Account IDs**: everything else the wizard asks for, plus guard limits.
+5. **Google Tags (GTM / Google tag)**, optional: paste your GTM or Google tag snippet or IDs, give the shown service-account e-mail *Publish* access in GTM, review the plan, and publish it (only in a live mode, after you confirm). If your site does not load the GTM container yet, install the snippet once; after that, tag changes are automated. Needs `pip install -e ".[gtm]"`.
+6. **Overview → Test Google Ads connection**, then **Run (read-only)** → *Run read-only audit*.
+
+Every value goes into the same files the code reads. The field-by-field map is in [`DASHBOARD.md`](DASHBOARD.md).
+
+## 3b. Configure in the terminal (wizard)
 
 ```bash
 python scripts/init_project.py
@@ -37,6 +54,7 @@ The wizard creates **local-only** files (gitignored):
 | `.env` | API tokens, customer IDs, kill switch |
 | `config/product_facts.json` | Brand, landings, approved Grant domains |
 | `config/tenant.json` | Tenant metadata (timezone, Grants flag) |
+| `config/account_ids.json` | Google Ads resource IDs (copied from the example, fake IDs) |
 
 Non-interactive alternative:
 
@@ -100,9 +118,12 @@ bash scripts/install_delivery_watch_hourly.sh
 
 ```bash
 PYTHONPATH=src pytest -q
+# optional browser tests for the dashboard:
+pip install -e ".[dev,e2e]" && python -m playwright install chromium
+PYTHONPATH=src pytest -q -m e2e
 ```
 
-Some tests use example fixtures; they do not call your live account.
+Tests use example fixtures and fake credentials only. Google Ads, GTM and your website are mocked, so the tests never call your live account or the network. The browser tests are skipped automatically when Playwright or Chromium is missing.
 
 ## 8. What is intentionally NOT in this repo
 

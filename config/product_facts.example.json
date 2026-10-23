@@ -1,5 +1,12 @@
 {
   "product": "YOUR_BRAND",
+  "main_offering": "",
+  "organization": {
+    "_comment": "Set in the dashboard ('Your organization or business') or here. type: business | nonprofit. Fill description, website_url, or both.",
+    "type": "business",
+    "description": "",
+    "website_url": ""
+  },
   "merchant": "YOUR_LEGAL_ENTITY",
   "captured_at": "YYYY-MM-DD",
   "landings": {

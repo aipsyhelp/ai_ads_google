@@ -127,8 +127,38 @@ TOP10_MENTAL_WELLBEING: tuple[CompetitorProfile, ...] = (
 )
 
 
-def discover_top_competitors(*, category: str = "mental_wellbeing") -> dict[str, Any]:
-    """Autonomous top-10 pack for Strategy / Creative / CRO (observation, not cloning)."""
+def competitor_search_seeds(org: dict[str, Any]) -> list[str]:
+    """Search queries that find competitors (or peer organizations) of the user's own offering.
+
+    Built only from the user's description / website / main offering; no live crawling.
+    """
+    seeds: list[str] = []
+    offering = org.get("main_offering") or ""
+    domain = org.get("website_domain") or ""
+    terms = [t for t in org.get("seed_terms") or [] if t != offering.lower()]
+    if org.get("type") == "nonprofit":
+        if offering:
+            seeds += [f"{offering} nonprofit", f"organizations offering {offering}", f"{offering} charity"]
+        seeds += [f"{t} nonprofit organizations" for t in terms[:4]]
+    else:
+        if offering:
+            seeds += [f"{offering} alternatives", f"best {offering}", f"{offering} competitors"]
+        seeds += [f"{t} companies" for t in terms[:4]]
+    if domain:
+        seeds += [f"sites like {domain}", f"{domain} alternatives"]
+    return list(dict.fromkeys(s.strip() for s in seeds if s.strip()))
+
+
+def discover_top_competitors(*, category: str = "mental_wellbeing", facts: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Autonomous top-10 pack for Strategy / Creative / CRO (observation, not cloning).
+
+    When ``organization`` / ``main_offering`` are configured (dashboard → "Your organization
+    or business"), discovery seeds are derived from them; the curated list below is the
+    bundled example vertical.
+    """
+    from ads_ai_agents.platform.product_facts import organization_profile
+
+    org = organization_profile(facts)
     profiles = [p.to_dict() for p in TOP10_MENTAL_WELLBEING]
     strategy_seeds = []
     for p in TOP10_MENTAL_WELLBEING:
@@ -148,6 +178,15 @@ def discover_top_competitors(*, category: str = "mental_wellbeing") -> dict[str,
             "Never copy clinical diagnosis / medication / crisis treatment claims",
         ],
         "strategy_seeds": strategy_seeds,
+        "organization": {
+            "type": org["type"],
+            "main_offering": org["main_offering"],
+            "website_domain": org["website_domain"],
+            "configured": org["configured"],
+        },
+        "product_seed_terms": org["seed_terms"],
+        "competitor_search_seeds": competitor_search_seeds(org),
+        "curated_list_scope": "bundled example vertical (see docs/EXAMPLE_VERTICAL.md)",
         "daily_watch": [
             "Landing hero/CTA/trial diffs",
             "App Store screenshots & reviews themes",

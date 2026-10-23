@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="ui-token" content="__UI_TOKEN__">
+<title>Google Ads AI Automation — dashboard</title>
+<link rel="stylesheet" href="/static/app.css">
+<script src="/static/app.js" defer></script>
+</head>
+<body>
+<aside class="side">
+  <div class="brand"><span class="logo">A</span><div><b>Google Ads AI Automation</b><small>Local dashboard · 127.0.0.1</small></div></div>
+  <nav>
+    <button data-nav="overview" class="active">Overview</button>
+    <button data-nav="organization">Your organization or business</button>
+    <button data-nav="tags">Google Tags (GTM / Google tag)</button>
+    <button data-nav="account">Account &amp; credentials</button>
+    <button data-nav="site">Website &amp; domains</button>
+    <button data-nav="tenant">Locales &amp; tenant</button>
+    <button data-nav="safety">Safety &amp; automation mode</button>
+    <button data-nav="ids">Account IDs</button>
+    <button data-nav="run">Run (read-only)</button>
+    <button data-nav="reports">Reports</button>
+    <button data-nav="agents">Agents</button>
+  </nav>
+  <div class="mode-pill" id="mode-pill">READ_ONLY</div>
+  <p class="foot">Values are saved to <code>.env</code> and <code>config/*.json</code> on this computer only (gitignored).</p>
+</aside>
+
+<main>
+<!-- OVERVIEW -->
+<section data-page="overview" class="page active">
+  <h1>Overview</h1>
+  <p class="lead">Set everything up here. Start with <b>Your organization or business</b>, then connect your Google Ads account. The tool stays <b>read-only</b> until you change the automation mode.</p>
+  <div class="cards" id="overview-cards"></div>
+  <div class="row">
+    <button id="init-templates" class="ghost">Create missing local config files</button>
+    <button id="run-ping">Test Google Ads connection (read-only ping)</button>
+  </div>
+  <div class="result" id="ping-result"></div>
+  <h2>What the code loads right now</h2>
+  <p class="hint">Read back through the same loaders the agents use (<code>GoogleAdsSettings</code>, <code>load_controlled_policy</code>, <code>load_product_facts</code>, <code>load_account_ids</code>). Secrets show only as “set”.</p>
+  <pre id="loaded-settings" class="code"></pre>
+</section>
+
+<!-- ORGANIZATION -->
+<section data-page="organization" class="page">
+  <h1>Your organization or business</h1>
+  <p class="lead">Fill in either field, or both. The planning, creative and competitor-discovery agents use this to decide what to advertise.</p>
+  <form id="form-organization" class="card form">
+    <fieldset class="seg"><legend>Type</legend>
+      <label><input type="radio" name="type" value="business" checked> Business</label>
+      <label><input type="radio" name="type" value="nonprofit"> Nonprofit (NGO)</label>
+    </fieldset>
+    <label class="check nonprofit-only"><input type="checkbox" name="use_ad_grants" checked> Use Google Ad Grants mode (Grant domain gate + compliance checks)</label>
+    <label>Describe your organization, product, service or cause
+      <textarea name="description" rows="4" placeholder="e.g. We run free weekend coding classes for teenagers in our city."></textarea></label>
+    <label>Your website <input name="website_url" placeholder="https://www.example.org"></label>
+    <label>Main offering (product, service or program) <span class="opt">optional</span>
+      <input name="main_offering" placeholder="e.g. coding classes for teens"></label>
+    <label class="check"><input type="checkbox" name="fetch_metadata"> Also read my website's title and description (one request to your site; off by default)</label>
+    <div class="row"><button type="button" data-save="organization">Save</button><span class="msg" id="msg-organization"></span></div>
+  </form>
+  <div class="card"><h3>How the agents use it</h3><div id="org-usage" class="hint">Save to see the main offering and competitor search seeds.</div></div>
+</section>
+
+<!-- GOOGLE TAGS -->
+<section data-page="tags" class="page">
+  <h1>Google Tags (GTM / Google tag)</h1>
+  <p class="lead">Hand over your tags or IDs; the agent does the wiring in Google Tag Manager. <b>Honest note:</b> if your site does not load the GTM container yet, it has to be installed once (paste the snippet or use your CMS's GTM plugin). After that, every tag change is automated.</p>
+  <div class="steps">
+    <div class="card step"><h3><span>1</span> Paste</h3>
+      <form id="form-tags" class="form">
+        <label>GTM container snippet, Google tag (gtag.js) snippet, or IDs
+          <textarea name="text" rows="5" placeholder="GTM-XXXXXXX, G-XXXXXXXXXX, AW-123456789 or the full &lt;script&gt; snippet"></textarea></label>
+        <div class="row"><button type="button" id="tags-detect" class="ghost">Detect IDs</button><button type="button" data-save="tags">Save IDs</button><span class="msg" id="msg-tags"></span></div>
+        <div id="tags-detected" class="chips"></div>
+        <details><summary>Google Ads conversion labels (optional)</summary>
+          <div class="grid3">
+            <label>generate_lead <input name="label_generate_lead" placeholder="conversion label"></label>
+            <label>sign_up <input name="label_sign_up"></label>
+            <label>purchase <input name="label_purchase"></label>
+            <label>donation <input name="label_donation"></label>
+          </div></details>
+      </form>
+    </div>
+    <div class="card step"><h3><span>2</span> Connect</h3>
+      <p class="hint">GTM uses the same service account as Google Ads. Add this e-mail in <b>GTM → Admin → User Management</b> with <b>Publish</b> permission:</p>
+      <code id="gtm-sa-email" class="pill">(set the service-account key under Account &amp; credentials)</code>
+      <div class="row"><button type="button" id="gtm-load-accounts" class="ghost">Find my GTM containers</button></div>
+      <form id="form-gtm_container" class="form grid3">
+        <label>Account <select name="account_id" id="gtm-account"></select></label>
+        <label>Container <select name="container_id" id="gtm-container"></select></label>
+        <input type="hidden" name="container_public_id" id="gtm-public">
+      </form>
+      <div class="row"><button type="button" data-save="gtm_container">Use this container</button><span class="msg" id="msg-gtm_container"></span></div>
+    </div>
+    <div class="card step"><h3><span>3</span> Plan</h3>
+      <div class="row"><button type="button" id="gtm-plan">Build tag plan</button></div>
+      <div id="gtm-plan-out"></div>
+    </div>
+    <div class="card step"><h3><span>4</span> Apply</h3>
+      <p class="hint">In <b>READ_ONLY</b> this is a dry run. To publish, switch the automation mode, tick the box and click Publish. Every change is logged and the previous version is kept for rollback.</p>
+      <label class="check"><input type="checkbox" id="gtm-confirm"> I reviewed the plan: create a workspace, add the tags, create a version and publish it</label>
+      <div class="row"><button type="button" id="gtm-apply" class="warn">Publish to GTM</button><button type="button" id="gtm-rollback" class="ghost" disabled>Roll back</button></div>
+      <div id="gtm-apply-out" class="result"></div>
+    </div>
+    <div class="card step"><h3><span>5</span> Verify</h3>
+      <label class="check"><input type="checkbox" id="gtm-fetch"> Fetch my site to check the container snippet (one request)</label>
+      <div class="row"><button type="button" id="gtm-verify" class="ghost">Verify</button></div>
+      <div id="gtm-verify-out" class="result"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ACCOUNT -->
+<section data-page="account" class="page">
+  <h1>Account &amp; credentials</h1>
+  <form id="form-credentials" class="card form">
+    <h3>Google Ads API credentials <span class="badge">stored in .env / secrets/ only</span></h3>
+    <label>Developer token <input type="password" name="developer_token" autocomplete="off" placeholder="not set"></label>
+    <label>Service-account key file path <input name="service_account_json_path" placeholder="secrets/google_ads_service_account.json"></label>
+    <label>…or upload the key file <input type="file" id="sa-file" accept=".json,application/json"></label>
+    <label class="check"><input type="checkbox" name="use_service_account" checked> Use service account</label>
+    <label>Impersonated e-mail <span class="opt">optional</span><input name="impersonated_email"></label>
+    <div class="row"><button type="button" data-save="credentials">Save credentials</button><span class="msg" id="msg-credentials"></span></div>
+  </form>
+  <form id="form-account" class="card form">
+    <h3>Google Ads accounts</h3>
+    <div class="grid2">
+      <label>Manager (MCC) customer ID <input name="login_customer_id" placeholder="000-000-0000"></label>
+      <label>Client customer ID <input name="customer_id" placeholder="000-000-0000"></label>
+    </div>
+    <div class="row"><button type="button" data-save="account">Save accounts</button><span class="msg" id="msg-account"></span></div>
+  </form>
+</section>
+
+<!-- SITE -->
+<section data-page="site" class="page">
+  <h1>Website &amp; domains</h1>
+  <form id="form-brand" class="card form">
+    <h3>Brand and landing pages</h3>
+    <div class="grid2">
+      <label>Brand / product name <input name="brand"></label>
+      <label>Primary website domain <input name="domain" placeholder="www.example.org"></label>
+      <label>App / chat domain <span class="opt">optional</span><input name="app_domain" placeholder="app.example.org"></label>
+    </div>
+    <div class="row"><button type="button" data-save="brand">Save brand</button><span class="msg" id="msg-brand"></span></div>
+  </form>
+  <form id="form-domains" class="card form">
+    <h3>Approved ad destinations</h3>
+    <label>Approved domains (one per line) <textarea name="approved_domains" rows="3"></textarea></label>
+    <label>Preferred Grant domain <input name="preferred_grant_domain"></label>
+    <label>Unserved hosts (never use in ads) <textarea name="unserved_hosts" rows="2"></textarea></label>
+    <div class="row"><button type="button" data-save="domains">Save domains</button><span class="msg" id="msg-domains"></span></div>
+  </form>
+</section>
+
+<!-- TENANT -->
+<section data-page="tenant" class="page">
+  <h1>Locales &amp; tenant</h1>
+  <form id="form-tenant" class="card form">
+    <div class="grid2">
+      <label>Time zone <input name="timezone" placeholder="Europe/Berlin"></label>
+      <label>Currency <input name="currency" placeholder="USD"></label>
+      <label>Locales <input name="locales" placeholder="EN, DE"></label>
+      <label>Primary locale <input name="primary_locale" placeholder="EN"></label>
+    </div>
+    <label>Focus cities (one per line) <textarea name="focus_cities" rows="3"></textarea></label>
+    <div class="grid2">
+      <label>Alert e-mail <input name="alert_email"></label>
+      <label>Slack webhook URL <input type="password" name="slack_webhook_url" autocomplete="off" placeholder="not set"></label>
+    </div>
+    <div class="row"><button type="button" data-save="tenant">Save tenant</button><span class="msg" id="msg-tenant"></span></div>
+  </form>
+  <form id="form-grants" class="card form">
+    <h3>Google Ad Grants</h3>
+    <label class="check"><input type="checkbox" name="is_ad_grants"> This is a Google Ad Grants account</label>
+    <label class="check"><input type="checkbox" name="enforce_domain_gate"> Enforce the Grant domain gate</label>
+    <div class="row"><button type="button" data-save="grants">Save</button><span class="msg" id="msg-grants"></span></div>
+  </form>
+</section>
+
+<!-- SAFETY -->
+<section data-page="safety" class="page">
+  <h1>Safety &amp; automation mode</h1>
+  <form id="form-guards" class="card form">
+    <h3>Guard limits</h3>
+    <div class="grid2">
+      <label>Max budget change per step (%) <input name="max_budget_change_percent" inputmode="decimal"></label>
+      <label>Human approval above (%) <input name="require_approval_above_percent" inputmode="decimal"></label>
+      <label>Cooldown between budget moves (days) <input name="budget_cooldown_days" inputmode="numeric"></label>
+      <label>Account daily budget cap (USD) <input name="max_account_daily_budget" inputmode="decimal"></label>
+      <label>Asset publishing <select name="asset_publish"><option>approval</option><option>auto_gated</option></select></label>
+      <label>New positive keywords <select name="positive_keywords"><option>approval</option><option>auto_gated</option></select></label>
+    </div>
+    <label class="check"><input type="checkbox" name="require_human_approval" checked> Require human approval</label>
+    <div class="row"><button type="button" data-save="guards">Save limits</button><span class="msg" id="msg-guards"></span></div>
+  </form>
+  <form id="form-mode" class="card form">
+    <h3>Automation mode (kill switch)</h3>
+    <label>Mode <select name="mode"><option>READ_ONLY</option><option>CONTROLLED_LIVE</option><option>AUTONOMOUS_LIVE</option></select></label>
+    <label>To enable a live mode, type <code id="confirm-phrase">ENABLE LIVE WRITES</code><input name="confirm" autocomplete="off"></label>
+    <div class="row"><button type="button" data-save="mode" class="warn">Apply mode</button><span class="msg" id="msg-mode"></span></div>
+  </form>
+</section>
+
+<!-- IDS -->
+<section data-page="ids" class="page">
+  <h1>Account IDs</h1>
+  <p class="lead">Google Ads resource IDs (portfolios, budgets, campaigns, assets) used by planners and <code>examples/ops</code>. Digits only.</p>
+  <form id="form-account_ids" class="card form">
+    <textarea name="account_ids" rows="18" class="mono"></textarea>
+    <div class="row"><button type="button" data-save="account_ids">Save account IDs</button><span class="msg" id="msg-account_ids"></span></div>
+  </form>
+</section>
+
+<!-- RUN -->
+<section data-page="run" class="page">
+  <h1>Run (read-only)</h1>
+  <div class="cards two">
+    <div class="card"><h3>Daily plan</h3><p class="hint">Runs the 10-agent mission plan on a sample campaign. No Google Ads calls.</p>
+      <div class="row"><select id="plan-sample"><option>grant_search_campaign.example.json</option></select><button id="run-plan">Run read-only plan</button></div></div>
+    <div class="card"><h3>Account audit</h3><p class="hint">Reads your account through the read-only adapter and builds the efficiency dashboard.</p>
+      <div class="row"><button id="run-audit">Run read-only audit</button></div></div>
+  </div>
+  <div id="plan-result" class="result"></div>
+  <div id="audit-result" class="result"></div>
+</section>
+
+<!-- REPORTS -->
+<section data-page="reports" class="page">
+  <h1>Reports</h1>
+  <div id="reports-out"></div>
+</section>
+
+<!-- AGENTS -->
+<section data-page="agents" class="page">
+  <h1>Agents</h1>
+  <div id="agents-out"></div>
+</section>
+</main>
+</body>
+</html>

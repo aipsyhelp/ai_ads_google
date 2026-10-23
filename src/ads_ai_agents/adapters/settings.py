@@ -10,8 +10,14 @@ def _strip_customer_id(value: str) -> str:
 
 
 def load_dotenv(path: Path | None = None) -> None:
-    """Load ads_ai_agents/.env if present without requiring python-dotenv."""
-    env_path = path or Path(__file__).resolve().parents[3] / ".env"
+    """Load the project ``.env`` (see ``config_store.project_root``) without python-dotenv.
+
+    Existing environment variables win (``setdefault``); the dashboard calls
+    ``config_store.reload_runtime`` after saving to push new values in.
+    """
+    from ads_ai_agents.config_store import project_paths
+
+    env_path = path or project_paths().env
     if not env_path.is_file():
         return
     for raw in env_path.read_text(encoding="utf-8").splitlines():

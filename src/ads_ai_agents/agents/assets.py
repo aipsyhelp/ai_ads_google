@@ -49,6 +49,17 @@ class AssetAgent:
         if campaign.portfolio is Portfolio.AI_MAX_SEARCH:
             actions.append("Ship text customization guidelines and final URL expansion exclusions.")
 
+        from ads_ai_agents.platform.product_facts import organization_profile
+
+        org = organization_profile()
+        if org["main_offering"]:
+            kind = "cause/program" if org["type"] == "nonprofit" else "product/service"
+            actions.insert(0, f"Main offering to advertise ({kind}): {org['main_offering']}.")
+        if org["description"]:
+            actions.insert(1 if org["main_offering"] else 0, f"Message source (your description): {org['description'][:200]}")
+        if org["seed_terms"]:
+            actions.append("Seed headline themes from your offering: " + ", ".join(org["seed_terms"][:6]) + ".")
+
         actions.append("Localize UA/EN/DE/PL only when LP + legal/disclaimer parity exists.")
         actions.append("Feed competitor creative angles into counter-messaging without trademark misuse.")
 

@@ -13,7 +13,9 @@ def _default_path() -> Path:
     env = os.environ.get("ADS_PRODUCT_FACTS_PATH", "").strip()
     if env:
         return Path(env)
-    return Path(__file__).resolve().parents[3] / "config" / "product_facts.json"
+    from ads_ai_agents.config_store import project_paths
+
+    return project_paths().facts
 
 
 @lru_cache(maxsize=4)
@@ -75,3 +77,53 @@ def focus_cities(facts: dict[str, Any] | None = None) -> tuple[str, ...]:
     facts = facts if facts is not None else load_product_facts()
     cities = ((facts.get("geo") or {}).get("focus_cities")) or ["City_A", "City_B", "City_C"]
     return tuple(str(c) for c in cities if str(c).strip())
+
+
+_SEED_STOPWORDS = frozenset(
+    """a an and are as at be by for from has have help helps in into is it its of on or our that the their them
+    they this to us we with you your who what which will can more most all also about over than other via per
+    business organization organisation nonprofit company website online people service services product products
+    program programs offer offering free best""".split()
+)
+
+
+def organization_profile(facts: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Who/what we advertise (product_facts.json → organization, main_offering).
+
+    Works for businesses and nonprofits alike. Planner, creative and competitor-discovery
+    agents read this so the user's own description drives what gets advertised.
+    """
+    import re
+    from urllib.parse import urlparse
+
+    facts = facts if facts is not None else load_product_facts()
+    org = facts.get("organization") or {}
+    description = str(org.get("description") or "").strip()
+    website_url = str(org.get("website_url") or "").strip()
+    org_type = str(org.get("type") or "business").strip().lower()
+    if org_type not in {"business", "nonprofit"}:
+        org_type = "business"
+    main_offering = str(facts.get("main_offering") or "").strip()
+    domain = urlparse(website_url).hostname or "" if website_url else ""
+    name = str(facts.get("product") or "").strip()
+
+    words: list[str] = []
+    for text in (main_offering, description, str(org.get("site_title") or ""), str(org.get("site_meta_description") or "")):
+        for token in re.findall(r"[^\W\d_][\w'-]{2,}", text.lower()):
+            token = token.strip("'-")
+            if len(token) >= 4 and token not in _SEED_STOPWORDS and token not in words:
+                words.append(token)
+    stem = domain.removeprefix("www.").split(".")[0] if domain else ""
+    seed_terms = ([main_offering.lower()] if main_offering else []) + words[:12]
+    if stem and stem not in seed_terms:
+        seed_terms.append(stem)
+    return {
+        "configured": bool(description or website_url or main_offering),
+        "type": org_type,
+        "name": name,
+        "description": description,
+        "website_url": website_url,
+        "website_domain": domain,
+        "main_offering": main_offering or (name if name and name != "YOUR_BRAND" else ""),
+        "seed_terms": seed_terms,
+    }

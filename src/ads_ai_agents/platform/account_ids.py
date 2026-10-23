@@ -13,15 +13,15 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-_CONFIG_DIR = Path(__file__).resolve().parents[3] / "config"
-
 
 def account_ids_path() -> Path:
     env = os.environ.get("ADS_ACCOUNT_IDS_PATH", "").strip()
     if env:
         return Path(env)
-    real = _CONFIG_DIR / "account_ids.json"
-    return real if real.is_file() else _CONFIG_DIR / "account_ids.example.json"
+    from ads_ai_agents.config_store import project_paths
+
+    paths = project_paths()
+    return paths.account_ids if paths.account_ids.is_file() else paths.account_ids_example
 
 
 @lru_cache(maxsize=4)

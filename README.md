@@ -140,7 +140,10 @@ Every platform agent has a **mutation policy** that limits what it may do:
 - **Conversion governance:** finds "micro" events (scrolls, clicks) that inflate your conversion numbers and plans a clean-up.
 - **Change ledger:** imports Google's change history so every material edit can be explained.
 - **Reports, not black boxes:** everything is written as JSON or Markdown under `reports/` so you can read, diff and archive it.
-- **Setup wizard:** `python scripts/init_project.py` creates your local config and never commits it.
+- **Local dashboard:** `ads-agents ui` opens a setup and reports UI on `127.0.0.1`. It writes the same local files as the wizard and shows what the agents load. See [Configure in the dashboard](#-configure-in-the-dashboard).
+- **Your organization or business:** describe your business or nonprofit and/or give your website. The planner, creative agent and competitor discovery use it.
+- **Google Tags tab:** paste a GTM or Google tag snippet (or just the IDs) and the agent plans and publishes the GTM tags for you. Publishing happens only in a live mode, after you confirm, and it is logged with rollback.
+- **Setup wizard:** `python scripts/init_project.py` is the terminal alternative to the dashboard. It also creates your local config and never commits it.
 
 ---
 
@@ -160,7 +163,28 @@ All screenshots show real CLI output from a fresh install, using **example confi
 
 </details>
 
-> ℹ️ The "dashboard" is a **report generator**, not a web app. `ads-agents dashboard` writes `efficiency_dashboard.json` (KPIs, conversion breakdown, clean-up plan) and `TRACKING.md` (the KPI tracking spec) into `reports/YYYY-MM-DD/`.
+> ℹ️ Two different things are called "dashboard". `ads-agents dashboard` is a **report generator**: it writes `efficiency_dashboard.json` and `TRACKING.md` into `reports/YYYY-MM-DD/`. `ads-agents ui` is the **local web dashboard** described below, which shows those reports and lets you configure everything.
+
+---
+
+## 🖥️ Configure in the dashboard
+
+```bash
+ads-agents ui            # or: PYTHONPATH=src python -m ads_ai_agents.cli ui
+# → http://127.0.0.1:8765 (loopback only)
+```
+
+| | |
+| --- | --- |
+| **Your organization or business** (fake demo data)<br>![Organization](docs/images/06-dashboard-organization.png) | **Read-only plan uses your main offering and competitor seeds**<br>![Plan](docs/images/08-dashboard-plan.png) |
+| **Google Tags: paste → connect → plan → apply → verify** (dry run in READ_ONLY)<br>![Google Tags](docs/images/07-dashboard-google-tags.png) | **Overview: mode, limits, read-only ping, loaded settings**<br>![Overview](docs/images/09-dashboard-overview.png) |
+
+- **Your organization or business.** Choose Business or Nonprofit (NGO). Describe your organization, product, service or cause, give your website, or both. Optionally add your main offering. Nonprofits can switch on Ad Grants mode from here.
+- **Google Tags (GTM / Google tag).** Paste your snippet or IDs. Then give the shown service-account e-mail **Publish** access in GTM. The agent builds the tag plan (Consent Mode, GA4, Conversion Linker, key events, Ads conversions) and publishes it as a new GTM version. In `READ_ONLY` it is a dry run. Honest note: if your site does not load the GTM container yet, install the snippet once (or use your CMS's GTM plugin); after that, tag changes are automated.
+- **Account & credentials, Website & domains, Locales & tenant, Safety & automation mode, Account IDs.** These hold every setting from the wizard. Secrets are write-only. Switching to a live mode needs the typed phrase `ENABLE LIVE WRITES`.
+- **Run (read-only), Reports, Agents.** Run the read-only plan or audit, read `efficiency_dashboard.json`, and browse the 41 agents.
+
+Every field is saved to `.env`, `config/product_facts.json`, `config/tenant.json`, `config/account_ids.json` or `secrets/`, all gitignored. The full field-to-variable map is in [`docs/DASHBOARD.md`](docs/DASHBOARD.md).
 
 ---
 
@@ -197,6 +221,8 @@ python -m ads_ai_agents.cli plan samples/grant_search_campaign.example.json   # 
 ### Step 3: Connect your own Google Ads account (about 2 minutes plus Google's approval time)
 
 ```bash
+ads-agents ui                           # easiest: fill in the dashboard at http://127.0.0.1:8765
+# or, in the terminal:
 python scripts/init_project.py          # interactive wizard: tokens, account IDs, brand, domains
 # Put your service-account JSON file into secrets/ (the wizard asks for its path)
 
@@ -220,6 +246,7 @@ Everything you provide stays **on your machine** in files that git ignores.
 | Client account ID | `.env` → `GOOGLE_ADS_CUSTOMER_ID` | The account that owns the campaigns; digits only |
 | Service-account key | `secrets/*.json` + `.env` → `GOOGLE_ADS_SERVICE_ACCOUNT_JSON` | Recommended auth method; see [`docs/TOKENS_AND_ACCESS.md`](docs/TOKENS_AND_ACCESS.md) |
 | Brand, landing pages, approved Grant domains | `config/product_facts.json` | Copied from `config/product_facts.example.json` |
+| Your organization or business (type, description, website, main offering), Google tag IDs | `config/product_facts.json` → `organization`, `main_offering`, `tracking` | Easiest via `ads-agents ui` |
 | Tenant metadata (timezone, Grants on/off) | `config/tenant.json` | Copied from `config/tenant.example.json` |
 | Focus cities, unserved hosts | `config/product_facts.json` → `geo.focus_cities`, `grant_destinations.unserved_hosts` | Optional; used by city-level rules and the Grant domain gate |
 | Resource IDs for the operator scripts (portfolios, budgets, campaigns, assets) | `config/account_ids.json` | Optional. Copy `config/account_ids.example.json` (fake IDs). Only the scripts in `examples/ops/` and a few recovery planners use it |
@@ -255,6 +282,7 @@ Read [`docs/SECURITY.md`](docs/SECURITY.md) before you enable any live mode.
 
 | Command | What it does | Touches Google Ads? |
 | --- | --- | --- |
+| `ads-agents ui` | Local web dashboard: setup, reports, read-only runs, Google Tags | Reads (GTM publish only in a live mode after you confirm) |
 | `ads-agents ping` | Verify your credentials | Reads |
 | `ads-agents audit` | Full account audit → `reports/YYYY-MM-DD/` | Reads |
 | `ads-agents conversions audit` | Classify conversion actions and find tracking risks | Reads |
@@ -294,7 +322,7 @@ No. It works with regular paid Google Ads accounts too. Ad Grants accounts get e
 <details>
 <summary><b>Does it use ChatGPT or another LLM? Where does my data go?</b></summary>
 
-The agents in this repository are Python rules and heuristics that run locally. Your account data is read via the Google Ads API and written to your local `reports/` folder. Nothing is sent anywhere else unless you configure optional alerts (email or Slack).
+The agents in this repository are Python rules and heuristics that run locally. Your account data is read via the Google Ads API and written to your local `reports/` folder. Nothing is sent anywhere else unless you turn it on yourself. That covers optional alerts (email or Slack), the optional one-time fetch of your own website's title or GTM snippet, and publishing GTM tags from the Google Tags tab (Google's Tag Manager API, only in a live mode after you confirm).
 </details>
 
 <details>
@@ -341,13 +369,15 @@ src/ads_ai_agents/
 ├── agents/           # 10 Google Ads ops agents (daily loop)
 ├── intelligence/     # audits, dashboards, Ad Grants checks, firewalls, pacing
 ├── core/             # orchestrator, domain model, policy
-└── adapters/         # settings, automation mode, Google Ads client, write guard
+├── adapters/         # settings, automation mode, Google Ads client, GTM API, write guard
+├── config_store.py   # single source of truth for .env + config/*.json (wizard, dashboard, loaders)
+└── ui/               # local dashboard (stdlib http.server + static HTML/JS)
 scripts/              # setup wizard + scheduled delivery watch
 examples/ops/         # historical one-off operator scripts (read before running)
 assets/visuals/       # source of the animated overview (HTML/CSS/JS)
 ```
 
-More detail: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) · Agent catalog: [`docs/AGENTS.md`](docs/AGENTS.md) · Setup: [`docs/SETUP.md`](docs/SETUP.md) · Tokens: [`docs/TOKENS_AND_ACCESS.md`](docs/TOKENS_AND_ACCESS.md) · Security: [`docs/SECURITY.md`](docs/SECURITY.md)
+More detail: [`docs/DASHBOARD.md`](docs/DASHBOARD.md) · [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) · Agent catalog: [`docs/AGENTS.md`](docs/AGENTS.md) · Setup: [`docs/SETUP.md`](docs/SETUP.md) · Tokens: [`docs/TOKENS_AND_ACCESS.md`](docs/TOKENS_AND_ACCESS.md) · Security: [`docs/SECURITY.md`](docs/SECURITY.md)
 
 ---
 
@@ -355,7 +385,7 @@ More detail: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) · Agent catalog: [`
 
 Version **0.1.0 (alpha)**. The code was extracted from a production setup that ran on a real Google Ad Grants account and was then generalised. Expect rough edges.
 
-- The full test suite passes (`PYTHONPATH=src pytest -q`: 166 tests at release time), and `pyflakes` is clean.
+- The full test suite passes (`PYTHONPATH=src pytest -q`: 236 tests, including 5 Playwright browser tests for the dashboard; those are skipped automatically if Playwright/Chromium is not installed), and `pyflakes` is clean.
 - `scripts/` holds only the setup wizard and the scheduled delivery watch. The historical one-off operator scripts now live in [`examples/ops/`](examples/ops/README.md). Several of them deliberately refuse to run, so read them before running any.
 - The keyword lexicons and ad-copy packs ship with a bundled **example vertical** (nonprofit wellbeing, EN/UA/DE). See [`docs/EXAMPLE_VERTICAL.md`](docs/EXAMPLE_VERTICAL.md) to adapt them to your own cause or business.
 - Always start in `READ_ONLY`.

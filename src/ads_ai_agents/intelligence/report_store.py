@@ -9,8 +9,11 @@ from typing import Any
 
 class ReportStore:
     def __init__(self, root: Path | None = None) -> None:
-        base = Path(__file__).resolve().parents[3]
-        self.root = root or (base / "reports")
+        if root is None:
+            from ads_ai_agents.config_store import project_paths
+
+            root = project_paths().reports_dir
+        self.root = root
 
     def day_dir(self, day: date | None = None, *, kind: str = "audit") -> Path:
         day = day or date.today()

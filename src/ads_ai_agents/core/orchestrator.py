@@ -72,11 +72,24 @@ class AdsOrchestrator:
                 key=lambda item: (item.priority, item.agent),
             )
         )
+        from ads_ai_agents.platform.agents.competitor_discovery import competitor_search_seeds
+        from ads_ai_agents.platform.product_facts import organization_profile
+
+        org = organization_profile()
         target = campaign.business_goal.effective_target_cpa_usd or campaign.grant.target_cpa_usd
+        subject = org["main_offering"] or org["name"] or "YOUR_BRAND"
         north_star = (
-            f"Utilize ${campaign.grant.monthly_budget_usd:,.0f}/mo Google Ad Grant for YOUR_BRAND "
+            f"Utilize ${campaign.grant.monthly_budget_usd:,.0f}/mo Google Ad Grant for {subject} "
             f"at ~${target:.2f} qualified-lead CPA with daily sense→compete→structure→create→allocate→guard loop."
         )
+        organization = {
+            "type": org["type"],
+            "main_offering": org["main_offering"],
+            "description": org["description"],
+            "website_url": org["website_url"],
+            "product_seed_terms": org["seed_terms"],
+            "competitor_search_seeds": competitor_search_seeds(org),
+        }
         return MissionPlan(
             campaign=campaign,
             gate=gate,
@@ -84,6 +97,7 @@ class AdsOrchestrator:
             workflow=ENTERPRISE_WORKFLOW,
             daily_checklist=self._daily_checklist(campaign, recommendations),
             north_star=north_star,
+            organization=organization,
         )
 
     def _daily_checklist(

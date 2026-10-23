@@ -30,7 +30,11 @@ Issues = "https://github.com/aipsyhelp/ai_ads_google/issues"
 Documentation = "https://github.com/aipsyhelp/ai_ads_google/tree/main/docs"
 
 [project.optional-dependencies]
-dev = ["pytest>=8.0"]
+dev = ["pytest>=8.0", "pyflakes>=3.0"]
+# Browser end-to-end tests for the dashboard: pip install -e ".[dev,e2e]" && python -m playwright install chromium
+e2e = ["pytest-playwright>=0.5", "playwright>=1.45"]
+# Google Tags tab (GTM API v2): pip install -e ".[gtm]"
+gtm = ["google-api-python-client>=2.100"]
 
 [project.scripts]
 ads-agents = "ads_ai_agents.cli:main"
@@ -38,6 +42,10 @@ ads-agents = "ads_ai_agents.cli:main"
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+ads_ai_agents = ["ui/static/*"]
+
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
+markers = ["e2e: browser end-to-end tests (need Playwright + Chromium; skipped otherwise)"]

@@ -303,6 +303,14 @@ def main(argv: list[str] | None = None) -> int:
         help="Build efficiency dashboard JSON + tracking spec from latest audit reports.",
     )
 
+    ui_parser = subparsers.add_parser(
+        "ui",
+        help="Local web dashboard + setup UI (http://127.0.0.1:8765, loopback only).",
+    )
+    ui_parser.add_argument("--host", default="127.0.0.1", help="Loopback address only (127.0.0.1, localhost or ::1).")
+    ui_parser.add_argument("--port", type=int, default=8765)
+    ui_parser.add_argument("--no-browser", action="store_true", help="Do not open a browser window.")
+
     init_parser = subparsers.add_parser(
         "init",
         help="Interactive local setup wizard (.env + product_facts + tenant; gitignored).",
@@ -315,6 +323,15 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     args = parser.parse_args(argv)
+
+    if args.command == "ui":
+        from ads_ai_agents.ui.server import run as run_ui
+
+        try:
+            return run_ui(args.host, args.port, open_browser=not args.no_browser)
+        except ValueError as exc:
+            print(exc)
+            return 2
 
     if args.command == "init":
         return _init_project(force=args.force, non_interactive=args.non_interactive)
@@ -429,9 +446,9 @@ def _init_project(*, force: bool = False, non_interactive: bool = False) -> int:
     """Delegate to scripts/init_project.py so the wizard stays a single source of truth."""
     import importlib.util
 
-    wizard = Path(__file__).resolve().parents[3] / "scripts" / "init_project.py"
+    wizard = Path(__file__).resolve().parents[2] / "scripts" / "init_project.py"
     if not wizard.is_file():
-        # Editable install / src-layout fallback: repo root is parents[3] from
+        # Editable install / src-layout fallback: repo root is parents[2] from
         # src/ads_ai_agents/cli.py → <root>/scripts/init_project.py
         wizard = Path.cwd() / "scripts" / "init_project.py"
     if not wizard.is_file():
@@ -1650,9 +1667,13 @@ def _format_mission(mission: MissionPlan) -> str:
         f"Portfolio: {campaign.portfolio.value}",
         f"North star: {mission.north_star or f'${campaign.grant.monthly_budget_usd:,.0f}/mo @ ${target:.2f} CPA'}",
         f"Gate: {mission.gate.state.value} / risk={mission.gate.risk.value}",
-        "",
-        "Agent recommendations:",
     ]
+    org = mission.organization or {}
+    if org.get("main_offering"):
+        lines.append(f"Main offering ({org.get('type', 'business')}): {org['main_offering']}")
+    if org.get("competitor_search_seeds"):
+        lines.append("Competitor search seeds: " + "; ".join(org["competitor_search_seeds"][:6]))
+    lines += ["", "Agent recommendations:"]
     for recommendation in mission.recommendations:
         lines.append(f"- [{recommendation.stage.value}] {recommendation.agent}: {recommendation.title}")
         for action in recommendation.actions[:5]:

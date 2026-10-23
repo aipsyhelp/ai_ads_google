@@ -201,3 +201,4 @@ class MissionPlan:
     workflow: tuple[WorkflowStep, ...] = ()
     daily_checklist: tuple[str, ...] = ()
     north_star: str = ""
+    organization: dict | None = None
